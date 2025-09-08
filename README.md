@@ -1,8 +1,3 @@
-# BusMate
-Got it — you want a **professional README.md draft** for **BusMate**, your college bus tracking app. Since it’s like *Where’s My Train* but crowd-powered by passengers, here’s a clean version:
-
----
-
 # BusMate 🚌
 
 **BusMate** is a real-time bus tracking application designed for college students.

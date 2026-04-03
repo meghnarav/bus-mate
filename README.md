@@ -26,3 +26,4 @@ Unlike traditional GPS-enabled systems, BusMate relies on **crowdsourced locatio
 
 ---
 
+Copyright (c) 2026 Meghna Ravikumar. All rights reserved. No part of this software may be reproduced or distributed without permission.

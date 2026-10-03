@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
 import DriverScanner from './pages/DriverScanner';
 import SeatPickerGrid from './components/SeatPickerGrid';
 import DynamicQRCode from './components/DynamicQRCode';
 import { SocialModals } from './components/SocialModals';
+
+interface SavedGroup {
+  id: string;
+  nickname: string;
+  friends: string[];
+  isFavorite: boolean;
+}
 
 function App() {
   const [currentView, setCurrentView] = useState<'passenger' | 'driver'>('passenger');
@@ -14,8 +21,27 @@ function App() {
   const [route, setRoute] = useState('tambaram');
   const [busType, setBusType] = useState('AC');
   const [acceptedInvites, setAcceptedInvites] = useState(0);
+  const [savedGroups, setSavedGroups] = useState<SavedGroup[]>([]);
   
   const { user } = useUser();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('busMateGroups');
+    if (saved) setSavedGroups(JSON.parse(saved));
+  }, []);
+
+  const saveGroup = (nickname: string) => {
+    const newGroup = { id: Date.now().toString(), nickname, friends: [], isFavorite: false };
+    const next = [...savedGroups, newGroup];
+    setSavedGroups(next);
+    localStorage.setItem('busMateGroups', JSON.stringify(next));
+  };
+
+  const toggleFavorite = (id: string) => {
+    const next = savedGroups.map(g => g.id === id ? { ...g, isFavorite: !g.isFavorite } : g);
+    setSavedGroups(next);
+    localStorage.setItem('busMateGroups', JSON.stringify(next));
+  };
 
   // If user is a driver (preset account), force driver view
   const isDriver = user?.publicMetadata?.role === 'DRIVER';
@@ -303,6 +329,33 @@ function App() {
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       View Pending Invites
                     </button>
+                  </div>
+
+                  <div className="mt-8 border-t border-amber-200/50 pt-6 relative z-10">
+                    <div className="flex justify-between items-center mb-4">
+                      <h4 className="text-lg font-bold text-amber-800">Saved Groups</h4>
+                      <button onClick={() => {
+                        const name = prompt('Enter a nickname for your new group:');
+                        if (name) saveGroup(name);
+                      }} className="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full hover:bg-amber-200 transition-colors shadow-sm border border-amber-200">+ New</button>
+                    </div>
+                    {savedGroups.length === 0 ? (
+                      <p className="text-xs text-amber-600/70 italic text-center py-4 bg-amber-50/50 rounded-xl border border-amber-100/50">No saved groups yet. Create one to quickly invite friends!</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {savedGroups.sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite)).map(g => (
+                          <div key={g.id} className="flex justify-between items-center bg-white p-3 rounded-xl border border-amber-100 shadow-sm group">
+                            <span className="font-bold text-sm text-slate-700">{g.nickname}</span>
+                            <button 
+                              onClick={() => toggleFavorite(g.id)} 
+                              className={`text-xl focus:outline-none transition-transform hover:scale-125 ${g.isFavorite ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200 hover:text-amber-200'}`}
+                            >
+                              ★
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (

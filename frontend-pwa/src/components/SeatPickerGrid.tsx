@@ -136,32 +136,47 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, on
         <div className="flex flex-col gap-4">
           
           {seatLayout.map((row) => (
-            <div key={row.id} className="flex justify-between items-center w-full">
+            <div key={row.id} className="grid grid-cols-6 gap-3 w-full justify-items-center">
               
               {row.type === 'split' ? (
                 <>
                   {/* Left Side (1 or 2 seats) */}
-                  <div className={`flex gap-3 ${row.left.length === 1 ? 'ml-auto mr-0' : ''}`} style={{ width: '40%', justifyContent: row.left.length === 1 ? 'flex-end' : 'flex-start' }}>
-                    {row.left.map(seatNum => renderSeat(seatNum))}
-                  </div>
+                  {row.left.length === 1 ? (
+                    <>
+                      {/* Window seat */}
+                      <div className="col-span-1">{renderSeat(row.left[0])}</div>
+                      {/* Empty gap for missing seat */}
+                      <div className="col-span-1"></div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="col-span-1">{renderSeat(row.left[0])}</div>
+                      <div className="col-span-1">{renderSeat(row.left[1])}</div>
+                    </>
+                  )}
                   
-                  {/* Aisle */}
-                  <div className="w-[20%] flex justify-center items-center">
+                  {/* Aisle (exactly 1 column wide) */}
+                  <div className="col-span-1 flex justify-center items-center flex-col gap-1 py-2">
                     <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
-                    <div className="w-1 h-1 bg-slate-200 rounded-full mx-1"></div>
+                    <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
                     <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
                   </div>
                   
                   {/* Right Side (3 seats) */}
-                  <div className="flex gap-3 w-[40%] justify-start">
-                    {row.right.map(seatNum => renderSeat(seatNum))}
-                  </div>
+                  <div className="col-span-1">{renderSeat(row.right[0])}</div>
+                  <div className="col-span-1">{renderSeat(row.right[1])}</div>
+                  <div className="col-span-1">{renderSeat(row.right[2])}</div>
                 </>
               ) : (
                 /* Joined Last Row (6 seats) */
-                <div className="flex gap-2 w-full justify-between px-1 mt-2">
-                  {row.seats.map(seatNum => renderSeat(seatNum))}
-                </div>
+                <>
+                  <div className="col-span-1">{renderSeat(row.seats[0])}</div>
+                  <div className="col-span-1">{renderSeat(row.seats[1])}</div>
+                  <div className="col-span-1">{renderSeat(row.seats[2])}</div>
+                  <div className="col-span-1">{renderSeat(row.seats[3])}</div>
+                  <div className="col-span-1">{renderSeat(row.seats[4])}</div>
+                  <div className="col-span-1">{renderSeat(row.seats[5])}</div>
+                </>
               )}
               
             </div>

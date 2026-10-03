@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.10",
+    "@clerk/react": "^6.17.5",
     "@zxing/library": "^0.20.0",
     "crypto-js": "^4.2.0",
     "lucide-react": "^0.344.0",

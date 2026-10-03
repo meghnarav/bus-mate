@@ -22,6 +22,9 @@ function App() {
   const [busType, setBusType] = useState('AC');
   const [acceptedInvites, setAcceptedInvites] = useState(0);
   const [savedGroups, setSavedGroups] = useState<SavedGroup[]>([]);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [prefZone, setPrefZone] = useState<'any' | 'front' | 'middle' | 'back'>('any');
+  const [prefType, setPrefType] = useState<'any' | 'window' | 'aisle'>('any');
   
   const { user } = useUser();
 
@@ -72,16 +75,48 @@ function App() {
     
     let found: number[] = [];
     // Randomize blocks to fill random sections instead of front-to-back
-    const shuffledBlocks = [...layout].sort(() => Math.random() - 0.5);
+    let blocksWithContext = layout.map((block, i) => {
+      // Row is approx block index / 2
+      const row = Math.floor(i / 2);
+      let zone = 'middle';
+      if (row < 3) zone = 'front';
+      else if (row > 6) zone = 'back';
+      
+      const isRightSide = i % 2 === 1;
+      // Very basic aisle/window heuristic
+      // Left block [w, a], Right block [a, m, w]
+      return { block, zone, isRightSide };
+    });
     
-    for (const block of shuffledBlocks) {
+    // Filter by zone if requested
+    if (prefZone !== 'any') {
+      blocksWithContext = blocksWithContext.filter(b => b.zone === prefZone);
+    }
+    
+    const shuffledBlocks = blocksWithContext.sort(() => Math.random() - 0.5);
+    
+    for (const {block, isRightSide} of shuffledBlocks) {
       let currentRun: number[] = [];
       for (const seat of block) {
         if (!reservedSeats.includes(seat)) {
           currentRun.push(seat);
           if (currentRun.length === groupSize) {
-            found = currentRun;
-            break;
+            // Check aisle/window preference
+            let satisfiesType = true;
+            if (prefType !== 'any') {
+              const hasWindow = currentRun.includes(block[0]) || currentRun.includes(block[block.length - 1]);
+              const hasAisle = isRightSide ? currentRun.includes(block[0]) : currentRun.includes(block[block.length - 1]);
+              
+              if (prefType === 'window' && !hasWindow) satisfiesType = false;
+              if (prefType === 'aisle' && !hasAisle) satisfiesType = false;
+            }
+            
+            if (satisfiesType) {
+              found = currentRun;
+              break;
+            } else {
+              currentRun.shift(); // keep trying in this block
+            }
           }
         } else {
           currentRun = []; // Reset run if obstacle hit
@@ -93,7 +128,7 @@ function App() {
     if (found.length) {
       setSelectedSeats(found);
     } else {
-      alert("No contiguous seats available for this group size in a single section! Please split up or select manually.");
+      alert("No contiguous seats available matching your preferences! Please try relaxing preferences or select manually.");
     }
   };
 
@@ -239,11 +274,12 @@ function App() {
                 <div className="flex gap-4 w-full">
                   <select 
                     value={route}
+                    disabled={isConfirmed}
                     onChange={(e) => {
                       setRoute(e.target.value);
                       setSelectedSeats([]);
                     }}
-                    className="flex-1 bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 block p-3 shadow-sm outline-none"
+                    className="flex-1 bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 block p-3 shadow-sm outline-none disabled:opacity-50"
                   >
                     <option value="tambaram">Tambaram - VIT</option>
                     <option value="velachery">Velachery - VIT</option>
@@ -253,11 +289,12 @@ function App() {
                   
                   <select 
                     value={busType}
+                    disabled={isConfirmed}
                     onChange={(e) => {
                       setBusType(e.target.value);
                       setSelectedSeats([]);
                     }}
-                    className="w-1/3 bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 block p-3 shadow-sm outline-none"
+                    className="w-1/3 bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 block p-3 shadow-sm outline-none disabled:opacity-50"
                   >
                     <option value="AC">AC (Bus 1-4)</option>
                     <option value="NON-AC">Non-AC (Bus 5)</option>
@@ -270,19 +307,62 @@ function App() {
                 reservedSeats={reservedSeats} 
                 selectedSeats={selectedSeats}
                 onSeatSelect={setSelectedSeats} 
-                groupSize={groupSize} 
+                groupSize={groupSize}
+                disabled={isConfirmed}
               />
               
-              <div className="flex justify-end gap-4 mt-4">
-                <button 
-                  onClick={handleAutoAssign}
-                  className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-3 px-6 rounded-xl hover:bg-amber-50 transition-colors shadow-sm"
-                >
-                  Quick Book (Auto-Assign {groupSize} Seat{groupSize > 1 ? 's' : ''})
-                </button>
-                <button className="bg-amber-500 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-amber-600 transition-colors">
-                  Confirm Selection
-                </button>
+              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center gap-4 justify-between mt-4">
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <select 
+                    value={prefZone}
+                    onChange={(e) => setPrefZone(e.target.value as any)}
+                    disabled={isConfirmed}
+                    className="bg-slate-50 border-2 border-slate-200 text-slate-700 text-xs font-bold rounded-lg focus:ring-amber-500 block p-2 outline-none disabled:opacity-50"
+                  >
+                    <option value="any">Any Zone</option>
+                    <option value="front">Front</option>
+                    <option value="middle">Middle</option>
+                    <option value="back">Back</option>
+                  </select>
+                  <select 
+                    value={prefType}
+                    onChange={(e) => setPrefType(e.target.value as any)}
+                    disabled={isConfirmed}
+                    className="bg-slate-50 border-2 border-slate-200 text-slate-700 text-xs font-bold rounded-lg focus:ring-amber-500 block p-2 outline-none disabled:opacity-50"
+                  >
+                    <option value="any">Any Seat</option>
+                    <option value="window">Window</option>
+                    <option value="aisle">Aisle</option>
+                  </select>
+                </div>
+                
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <button 
+                    onClick={handleAutoAssign}
+                    disabled={isConfirmed}
+                    className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-2 px-4 rounded-xl hover:bg-amber-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    Auto-Assign {groupSize}
+                  </button>
+                  {isConfirmed ? (
+                    <button 
+                      onClick={() => setIsConfirmed(false)}
+                      className="bg-red-500 text-white font-bold py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors text-sm"
+                    >
+                      Unlock Selection
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => {
+                        if (selectedSeats.length === groupSize) setIsConfirmed(true);
+                        else alert(`Please select ${groupSize} seats first.`);
+                      }}
+                      className="bg-emerald-500 text-white font-bold py-2 px-6 rounded-xl shadow-md hover:bg-emerald-600 transition-colors text-sm"
+                    >
+                      Confirm
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

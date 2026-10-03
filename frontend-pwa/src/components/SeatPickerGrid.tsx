@@ -4,16 +4,17 @@ import { Bus, Users, Armchair } from 'lucide-react';
 interface SeatPickerGridProps {
   rows: number;
   reservedSeats: number[];
+  selectedSeats: number[];
   onSeatSelect: (seats: number[]) => void;
   groupSize: number;
+  disabled?: boolean;
 }
 
 type SeatRow = 
   | { id: string; type: 'split'; left: number[]; right: number[] }
   | { id: string; type: 'joined'; seats: number[] };
 
-const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, onSeatSelect, groupSize }) => {
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, selectedSeats, onSeatSelect, groupSize, disabled }) => {
 
   // Generate the specific seat layout requested:
   // Row 1: 1 left, aisle, 3 right
@@ -52,7 +53,7 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, on
   }, [rows]);
 
   const toggleSeat = (seatNum: number) => {
-    if (reservedSeats.includes(seatNum)) return;
+    if (disabled || reservedSeats.includes(seatNum)) return;
 
     let newSelection = [...selectedSeats];
     
@@ -62,12 +63,10 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, on
       if (newSelection.length < groupSize) {
         newSelection.push(seatNum);
       } else {
-        newSelection.shift(); // Remove oldest selection
-        newSelection.push(seatNum);
+        newSelection = [seatNum]; // Replace all for quick feedback
       }
     }
     
-    setSelectedSeats(newSelection);
     onSeatSelect(newSelection);
   };
 

@@ -402,10 +402,10 @@ function App() {
                       onChange={(e) => setGroupSize(Number(e.target.value))}
                       className="bg-obsidian-800 border-2 border-obsidian-700 text-white text-sm font-bold rounded-lg focus:ring-busmate-500 focus:border-busmate-500 block p-2 outline-none"
                     >
-                      <option value={1}>1 (Solo)</option>
-                      <option value={2} disabled={acceptedInvites < 1}>2 Friends {acceptedInvites < 1 && '(Wait 1 accept)'}</option>
-                      <option value={3} disabled={acceptedInvites < 2}>3 Friends {acceptedInvites < 2 && '(Wait 2 accepts)'}</option>
-                      <option value={4} disabled={acceptedInvites < 3}>4 Friends {acceptedInvites < 3 && '(Wait 3 accepts)'}</option>
+                      <option value={1} className="bg-obsidian-800 text-white">1 (Solo)</option>
+                      <option value={2} disabled={acceptedInvites < 1} className="bg-obsidian-800 text-white">2 Friends {acceptedInvites < 1 && '(Wait 1 accept)'}</option>
+                      <option value={3} disabled={acceptedInvites < 2} className="bg-obsidian-800 text-white">3 Friends {acceptedInvites < 2 && '(Wait 2 accepts)'}</option>
+                      <option value={4} disabled={acceptedInvites < 3} className="bg-obsidian-800 text-white">4 Friends {acceptedInvites < 3 && '(Wait 3 accepts)'}</option>
                     </select>
                   </div>
                   

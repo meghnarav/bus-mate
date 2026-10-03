@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { googleSSOLogin } from '../controllers/auth.controller';
+import { reserveSeats, confirmBooking } from '../controllers/booking.controller';
+import { validateQR } from '../controllers/qr.controller';
 import { requireAuth, requireRole } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -7,15 +9,11 @@ const router = Router();
 // --- AUTHENTICATION ---
 router.post('/auth/google', googleSSOLogin);
 
-// --- PROTECTED ROUTES (Example) ---
-router.get('/me', requireAuth, (req: any, res) => {
-  res.json({ user: req.user });
-});
+// --- PROTECTED ROUTES (Passengers) ---
+router.post('/booking/reserve', requireAuth, reserveSeats);
+router.post('/booking/confirm', requireAuth, confirmBooking);
 
 // --- DRIVER/ADMIN ONLY ROUTES ---
-router.post('/qr/scan', requireAuth, requireRole(['DRIVER', 'ADMIN']), (req, res) => {
-  // Logic to call DynamicQREngine and validate
-  res.json({ success: true, message: 'Scan endpoint hit securely' });
-});
+router.post('/qr/scan', requireAuth, requireRole(['DRIVER', 'ADMIN']), validateQR);
 
 export default router;

@@ -9,10 +9,13 @@ function App() {
   const [currentView, setCurrentView] = useState<'passenger' | 'driver'>('passenger');
   const [selectedRole, setSelectedRole] = useState<'student' | 'driver' | 'admin' | null>(null);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
+  const [groupSize, setGroupSize] = useState(1);
+  
   const { user } = useUser();
 
   // If user is a driver (preset account), force driver view
   const isDriver = user?.publicMetadata?.role === 'DRIVER';
+  const isFaculty = user?.publicMetadata?.role === 'FACULTY' || selectedRole === 'faculty';
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
@@ -149,10 +152,10 @@ function App() {
                   <p className="text-sm text-slate-500">Choose your destination for contiguous seat allocation.</p>
                 </div>
                 <select className="bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 focus:border-amber-500 block w-full md:w-64 p-3 shadow-sm transition-all hover:bg-slate-100 cursor-pointer outline-none">
-                  <option value="tambaram">Tambaram - VIT (₹)</option>
-                  <option value="velachery">Velachery - VIT (₹)</option>
-                  <option value="sholinganallur">Sholinganallur - VIT (₹)</option>
-                  <option value="alandur">Alandur - VIT (₹)</option>
+                  <option value="tambaram">Tambaram - VIT (14 seats left)</option>
+                  <option value="velachery">Velachery - VIT (2 seats left)</option>
+                  <option value="sholinganallur">Sholinganallur - VIT (40 seats left)</option>
+                  <option value="alandur">Alandur - VIT (Full)</option>
                 </select>
               </div>
 
@@ -160,34 +163,67 @@ function App() {
                 rows={10} 
                 reservedSeats={[3, 4, 12, 15]} 
                 onSeatSelect={(seats) => console.log('Selected:', seats)} 
-                groupSize={2} 
+                groupSize={groupSize} 
               />
+              
+              <div className="flex justify-end gap-4 mt-4">
+                <button className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-3 px-6 rounded-xl hover:bg-amber-50 transition-colors">
+                  Quick Book (Auto-Assign {groupSize} Seat{groupSize > 1 ? 's' : ''})
+                </button>
+                <button className="bg-amber-500 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-amber-600 transition-colors">
+                  Confirm Selection
+                </button>
+              </div>
             </div>
 
             {/* Right Column: Group Booking Panel & Ticket */}
             <div className="flex-[2] space-y-6">
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-8 rounded-3xl shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-900">
-                  <svg className="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              {!isFaculty ? (
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 p-8 rounded-3xl shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-900">
+                    <svg className="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-amber-800 mb-2 relative z-10">Group Bookings</h3>
+                  <p className="text-sm text-amber-700 mb-6 relative z-10 leading-relaxed">
+                    Want to sit with your friends? Form a group and the <b>Contiguous Allocation Engine</b> will automatically reserve consecutive seats for all of you!
+                  </p>
+                  
+                  <div className="flex items-center gap-4 mb-6 relative z-10">
+                    <label className="text-sm font-bold text-amber-800">Booking Size:</label>
+                    <select 
+                      value={groupSize} 
+                      onChange={(e) => setGroupSize(Number(e.target.value))}
+                      className="bg-white border-2 border-amber-200 text-amber-800 text-sm font-bold rounded-lg focus:ring-amber-500 focus:border-amber-500 block p-2"
+                    >
+                      <option value={1}>1 (Solo)</option>
+                      <option value={2}>2 Friends</option>
+                      <option value={3}>3 Friends</option>
+                      <option value={4}>4 Friends</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-3 relative z-10">
+                    <button 
+                      onClick={() => setIsSocialModalOpen(true)}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5 flex justify-center items-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                      Create a New Group
+                    </button>
+                    <button className="w-full bg-white hover:bg-amber-100 text-amber-700 font-bold py-3.5 px-4 rounded-xl border-2 border-amber-300 transition-all flex justify-center items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      View Pending Invites
+                    </button>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-amber-800 mb-2 relative z-10">Group Bookings</h3>
-                <p className="text-sm text-amber-700 mb-6 relative z-10 leading-relaxed">
-                  Want to sit with your friends? Form a group and the <b>Contiguous Allocation Engine</b> will automatically reserve consecutive seats for all of you!
-                </p>
-                <div className="space-y-3 relative z-10">
-                  <button 
-                    onClick={() => setIsSocialModalOpen(true)}
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5 flex justify-center items-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                    Create a New Group
-                  </button>
-                  <button className="w-full bg-white hover:bg-amber-100 text-amber-700 font-bold py-3.5 px-4 rounded-xl border-2 border-amber-300 transition-all flex justify-center items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    View Pending Invites
-                  </button>
+              ) : (
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 p-8 rounded-3xl shadow-sm">
+                  <h3 className="text-xl font-bold text-indigo-800 mb-2">Faculty Priority Access</h3>
+                  <p className="text-sm text-indigo-700 leading-relaxed">
+                    As a faculty member, you have priority booking access. Group bookings are disabled for faculty accounts.
+                  </p>
                 </div>
-              </div>
+              )}
 
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm text-center">
                 <h2 className="text-xl font-bold text-slate-800 mb-4">Your Dynamic Ticket</h2>

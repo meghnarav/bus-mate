@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  FACULTY
+  DRIVER
+  ADMIN
+}
+
+enum Tier {
+  STANDARD
+  PRIORITY
+}
+
+enum BusStatus {
+  ACTIVE
+  MAINTENANCE
+}
+
+enum GroupStatus {
+  OPEN
+  LOCKED
+  EXPIRED
+  COMPLETED
+}
+
+enum MemberStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum TicketStatus {
+  RESERVED
+  ISSUED
+  BOARDED
+  CANCELLED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password_hash String?
+  google_id     String?        @unique
+  full_name     String
+  role          Role           @default(STUDENT)
+  tier          Tier           @default(STANDARD)
+  created_at    DateTime       @default(now())
+  
+  tickets       Ticket[]
+  owned_groups  BookingGroup[] @relation("GroupOwner")
+  group_members GroupMember[]
+  audit_logs    AuditLog[]
+}
+
+model Bus {
+  id                  String    @id @default(uuid())
+  registration_number String    @unique
+  total_capacity      Int
+  rows                Int
+  columns             Int
+  status              BusStatus @default(ACTIVE)
+  
+  schedules           Schedule[]
+}
+
+model Route {
+  id                      String    @id @default(uuid())
+  route_name              String
+  origin                  String
+  destination             String
+  estimated_duration_mins Int
+  
+  schedules               Schedule[]
+}
+
+model Schedule {
+  id                        String   @id @default(uuid())
+  bus_id                    String
+  route_id                  String
+  departure_time            DateTime
+  arrival_time              DateTime
+  faculty_booking_starts_at DateTime
+  student_booking_starts_at DateTime
+  fare_amount               Float
+  
+  bus                       Bus      @relation(fields: [bus_id], references: [id])
+  route                     Route    @relation(fields: [route_id], references: [id])
+  tickets                   Ticket[]
+}
+
+model BookingGroup {
+  id               String      @id @default(uuid())
+  initiator_user_id String
+  status           GroupStatus @default(OPEN)
+  invite_code      String      @unique
+  created_at       DateTime    @default(now())
+  
+  initiator        User          @relation("GroupOwner", fields: [initiator_user_id], references: [id])
+  members          GroupMember[]
+}
+
+model GroupMember {
+  id         String       @id @default(uuid())
+  group_id   String
+  user_id    String
+  status     MemberStatus @default(PENDING)
+  
+  group      BookingGroup @relation(fields: [group_id], references: [id])
+  user       User         @relation(fields: [user_id], references: [id])
+}
+
+model Ticket {
+  id            String       @id @default(uuid())
+  user_id       String
+  schedule_id   String
+  seat_number   Int
+  qr_seed_token String
+  status        TicketStatus @default(RESERVED)
+  created_at    DateTime     @default(now())
+  
+  user          User     @relation(fields: [user_id], references: [id])
+  schedule      Schedule @relation(fields: [schedule_id], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user_id    String
+  action     String
+  ip_address String?
+  timestamp  DateTime @default(now())
+  
+  user       User     @relation(fields: [user_id], references: [id])
+}

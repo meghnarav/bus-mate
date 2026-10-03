@@ -8,6 +8,10 @@ interface SeatPickerGridProps {
   groupSize: number;
 }
 
+type SeatRow = 
+  | { id: string; type: 'split'; left: number[]; right: number[] }
+  | { id: string; type: 'joined'; seats: number[] };
+
 const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, onSeatSelect, groupSize }) => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
 
@@ -15,9 +19,9 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, on
   // Row 1: 1 left, aisle, 3 right
   // Middle Rows: 2 left, aisle, 3 right
   // Last Row: 6 joined seats
-  const seatLayout = useMemo(() => {
+  const seatLayout: SeatRow[] = useMemo(() => {
     let currentSeat = 1;
-    const layout = [];
+    const layout: SeatRow[] = [];
     
     for (let r = 0; r < rows; r++) {
       if (r === 0) {
@@ -125,10 +129,10 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, on
         </div>
       </div>
 
-      {/* Driver Cabin Indicator */}
+      {/* Driver Cabin Indicator (India RHD) */}
       <div className="w-full h-12 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 rounded-t-3xl rounded-b-lg mb-8 flex items-center justify-between px-6 border-b-4 border-slate-400 opacity-80">
-         <span className="text-xs font-bold text-slate-600 tracking-widest uppercase">Steering</span>
          <span className="text-xs font-bold text-slate-600 tracking-widest uppercase">Door</span>
+         <span className="text-xs font-bold text-slate-600 tracking-widest uppercase">Steering</span>
       </div>
 
       {/* Bus Layout Container */}

@@ -12,12 +12,64 @@ function App() {
   const [groupSize, setGroupSize] = useState(1);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [route, setRoute] = useState('tambaram');
+  const [busType, setBusType] = useState('AC');
+  const [acceptedInvites, setAcceptedInvites] = useState(0);
   
   const { user } = useUser();
 
   // If user is a driver (preset account), force driver view
   const isDriver = user?.publicMetadata?.role === 'DRIVER';
   const isFaculty = user?.publicMetadata?.role === 'FACULTY' || selectedRole === 'faculty';
+
+  const getReservedSeats = () => {
+    if (route === 'alandur') return Array.from({length: 50}, (_, i) => i + 1); // Full
+    if (route === 'tambaram') return busType === 'AC' ? [3, 4, 12, 15, 22, 23, 24, 30] : [1, 2, 8, 9, 10, 48, 49];
+    if (route === 'velachery') return Array.from({length: 46}, (_, i) => i + 1); // Almost full
+    return [5, 18, 19, 33]; // Sholinganallur
+  };
+  const reservedSeats = getReservedSeats();
+
+  const handleAutoAssign = () => {
+    const layout: number[][] = [];
+    let current = 1;
+    for (let r = 0; r < 10; r++) {
+      if (r === 0) {
+        layout.push([current++]);
+        layout.push([current++, current++, current++]);
+      } else if (r === 9) {
+        layout.push(Array.from({length: 6}, () => current++));
+      } else {
+        layout.push([current++, current++]);
+        layout.push([current++, current++, current++]);
+      }
+    }
+    
+    let found: number[] = [];
+    // Randomize blocks to fill random sections instead of front-to-back
+    const shuffledBlocks = [...layout].sort(() => Math.random() - 0.5);
+    
+    for (const block of shuffledBlocks) {
+      let currentRun: number[] = [];
+      for (const seat of block) {
+        if (!reservedSeats.includes(seat)) {
+          currentRun.push(seat);
+          if (currentRun.length === groupSize) {
+            found = currentRun;
+            break;
+          }
+        } else {
+          currentRun = []; // Reset run if obstacle hit
+        }
+      }
+      if (found.length) break;
+    }
+    
+    if (found.length) {
+      setSelectedSeats(found);
+    } else {
+      alert("No contiguous seats available for this group size in a single section! Please split up or select manually.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans">
@@ -148,29 +200,48 @@ function App() {
             {/* Left Column: Route Selection & Seat Grid */}
             <div className="flex-[3] space-y-6">
               
-              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Select Route</h2>
-                  <p className="text-sm text-slate-500">Choose your destination for contiguous seat allocation.</p>
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-start gap-4">
+                <div className="flex w-full justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Select Route & Bus</h2>
+                    <p className="text-sm text-slate-500">Choose your destination and preferred bus type.</p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className={`text-xl font-black ${50 - reservedSeats.length === 0 ? 'text-red-500' : 'text-emerald-500'}`}>{50 - reservedSeats.length} Seats Left</span>
+                  </div>
                 </div>
-                <select 
-                  value={route}
-                  onChange={(e) => {
-                    setRoute(e.target.value);
-                    setSelectedSeats([]);
-                  }}
-                  className="bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 focus:border-amber-500 block w-full md:w-64 p-3 shadow-sm transition-all hover:bg-slate-100 cursor-pointer outline-none"
-                >
-                  <option value="tambaram">Tambaram - VIT (14 seats left)</option>
-                  <option value="velachery">Velachery - VIT (2 seats left)</option>
-                  <option value="sholinganallur">Sholinganallur - VIT (40 seats left)</option>
-                  <option value="alandur">Alandur - VIT (Full)</option>
-                </select>
+                <div className="flex gap-4 w-full">
+                  <select 
+                    value={route}
+                    onChange={(e) => {
+                      setRoute(e.target.value);
+                      setSelectedSeats([]);
+                    }}
+                    className="flex-1 bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 block p-3 shadow-sm outline-none"
+                  >
+                    <option value="tambaram">Tambaram - VIT</option>
+                    <option value="velachery">Velachery - VIT</option>
+                    <option value="sholinganallur">Sholinganallur - VIT</option>
+                    <option value="alandur">Alandur - VIT</option>
+                  </select>
+                  
+                  <select 
+                    value={busType}
+                    onChange={(e) => {
+                      setBusType(e.target.value);
+                      setSelectedSeats([]);
+                    }}
+                    className="w-1/3 bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 block p-3 shadow-sm outline-none"
+                  >
+                    <option value="AC">AC (Bus 1-4)</option>
+                    <option value="NON-AC">Non-AC (Bus 5)</option>
+                  </select>
+                </div>
               </div>
 
               <SeatPickerGrid 
                 rows={10} 
-                reservedSeats={route === 'alandur' ? Array.from({length: 56}, (_, i) => i + 1) : [3, 4, 12, 15]} 
+                reservedSeats={reservedSeats} 
                 selectedSeats={selectedSeats}
                 onSeatSelect={setSelectedSeats} 
                 groupSize={groupSize} 
@@ -178,18 +249,8 @@ function App() {
               
               <div className="flex justify-end gap-4 mt-4">
                 <button 
-                  onClick={() => {
-                    // Simple auto-assign: find first contiguous block of size `groupSize`
-                    const reserved = route === 'alandur' ? Array.from({length: 56}, (_, i) => i + 1) : [3, 4, 12, 15];
-                    const available = Array.from({length: 56}, (_, i) => i + 1).filter(s => !reserved.includes(s));
-                    if (available.length >= groupSize) {
-                      // For a simple demo, just take the first N available seats
-                      setSelectedSeats(available.slice(0, groupSize));
-                    } else {
-                      alert('Not enough contiguous seats available!');
-                    }
-                  }}
-                  className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-3 px-6 rounded-xl hover:bg-amber-50 transition-colors"
+                  onClick={handleAutoAssign}
+                  className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-3 px-6 rounded-xl hover:bg-amber-50 transition-colors shadow-sm"
                 >
                   Quick Book (Auto-Assign {groupSize} Seat{groupSize > 1 ? 's' : ''})
                 </button>
@@ -219,10 +280,15 @@ function App() {
                       className="bg-white border-2 border-amber-200 text-amber-800 text-sm font-bold rounded-lg focus:ring-amber-500 focus:border-amber-500 block p-2"
                     >
                       <option value={1}>1 (Solo)</option>
-                      <option value={2}>2 Friends</option>
-                      <option value={3}>3 Friends</option>
-                      <option value={4} disabled>4 Friends (Waiting for 1 to accept)</option>
+                      <option value={2} disabled={acceptedInvites < 1}>2 Friends {acceptedInvites < 1 && '(Wait 1 accept)'}</option>
+                      <option value={3} disabled={acceptedInvites < 2}>3 Friends {acceptedInvites < 2 && '(Wait 2 accepts)'}</option>
+                      <option value={4} disabled={acceptedInvites < 3}>4 Friends {acceptedInvites < 3 && '(Wait 3 accepts)'}</option>
                     </select>
+                  </div>
+                  
+                  <div className="flex gap-2 mb-4">
+                     <button onClick={() => setAcceptedInvites(p => p+1)} className="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">MOCK: +1 Friend Accept</button>
+                     <button onClick={() => setAcceptedInvites(0)} className="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">Reset</button>
                   </div>
 
                   <div className="space-y-3 relative z-10">

@@ -83,11 +83,11 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
       iconClass += 'text-slate-400';
       textClass += 'text-slate-500';
     } else if (isSelected) {
-      buttonClass += 'bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-indigo-400 shadow-indigo-500/50 shadow-lg scale-110 z-10 -translate-y-1';
-      iconClass += 'text-white opacity-90';
-      textClass += 'text-white';
+      buttonClass += 'bg-gradient-to-br from-chrome-400 to-chrome-500 border-2 border-chrome-600 shadow-chrome-500/50 shadow-lg scale-110 z-10 -translate-y-1';
+      iconClass += 'text-obsidian-900 opacity-90';
+      textClass += 'text-obsidian-900';
     } else {
-      buttonClass += 'bg-white hover:bg-indigo-50 hover:border-indigo-300 border-2 border-slate-200 hover:-translate-y-1 hover:shadow-md cursor-pointer';
+      buttonClass += 'bg-white hover:bg-slate-50 hover:border-chrome-400 border-2 border-slate-200 hover:-translate-y-1 hover:shadow-md cursor-pointer';
       iconClass += 'text-slate-300';
       textClass += 'text-slate-600';
     }
@@ -111,7 +111,7 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
       {/* Header */}
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-indigo-100 rounded-2xl text-indigo-600">
+          <div className="p-2.5 bg-chrome-400/20 rounded-2xl text-chrome-600">
             <Bus size={24} />
           </div>
           <div>
@@ -121,9 +121,9 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
         </div>
         
         <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-200">
-          <Users size={18} className="text-indigo-500" />
+          <Users size={18} className="text-chrome-500" />
           <span className="font-bold text-slate-700">
-            <span className="text-indigo-600">{selectedSeats.length}</span> / {groupSize}
+            <span className="text-chrome-600">{selectedSeats.length}</span> / {groupSize}
           </span>
         </div>
       </div>
@@ -199,8 +199,8 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Reserved</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-md border-2 border-indigo-400 bg-gradient-to-br from-indigo-500 to-purple-600"></div>
-          <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Selected</span>
+          <div className="w-4 h-4 rounded-md border-2 border-chrome-600 bg-gradient-to-br from-chrome-400 to-chrome-500"></div>
+          <span className="text-xs font-semibold text-chrome-600 uppercase tracking-wider">Selected</span>
         </div>
       </div>
 

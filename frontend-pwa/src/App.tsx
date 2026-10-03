@@ -3,10 +3,12 @@ import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/c
 import DriverScanner from './pages/DriverScanner';
 import SeatPickerGrid from './components/SeatPickerGrid';
 import DynamicQRCode from './components/DynamicQRCode';
+import { SocialModals } from './components/SocialModals';
 
 function App() {
   const [currentView, setCurrentView] = useState<'passenger' | 'driver'>('passenger');
   const [selectedRole, setSelectedRole] = useState<'student' | 'driver' | 'admin' | null>(null);
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const { user } = useUser();
 
   // If user is a driver (preset account), force driver view
@@ -173,7 +175,10 @@ function App() {
                   Want to sit with your friends? Form a group and the <b>Contiguous Allocation Engine</b> will automatically reserve consecutive seats for all of you!
                 </p>
                 <div className="space-y-3 relative z-10">
-                  <button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                  <button 
+                    onClick={() => setIsSocialModalOpen(true)}
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform hover:-translate-y-0.5 flex justify-center items-center gap-2"
+                  >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     Create a New Group
                   </button>
@@ -196,6 +201,8 @@ function App() {
         )}
         </SignedIn>
       </main>
+
+      <SocialModals isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} />
     </div>
   );
 }

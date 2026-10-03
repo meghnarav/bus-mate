@@ -7,7 +7,7 @@ import { SocialModals } from './components/SocialModals';
 
 function App() {
   const [currentView, setCurrentView] = useState<'passenger' | 'driver'>('passenger');
-  const [selectedRole, setSelectedRole] = useState<'student' | 'driver' | 'admin' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'student' | 'faculty' | 'driver' | 'admin' | null>(null);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [groupSize, setGroupSize] = useState(1);
   

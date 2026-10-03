@@ -11,14 +11,19 @@ export default {
       },
       colors: {
         obsidian: {
-          900: '#0B0F19',
-          800: '#111827',
-          700: '#1F2937',
+          900: '#0a0a0f',
+          800: '#13141c',
+          700: '#1e202d',
         },
-        chrome: {
-          400: '#FACC15',
-          500: '#EAB308',
-          600: '#CA8A04',
+        busmate: {
+          400: '#FFD700', // Vibrant School Bus Yellow
+          500: '#FFB800', // Deep Yellow
+          600: '#E6A600',
+        },
+        accent: {
+          400: '#00E5FF', // Neon Cyan
+          500: '#00B8D4', // Deep Cyan
+          600: '#0097A7',
         }
       }
     },

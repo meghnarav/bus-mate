@@ -48,19 +48,22 @@ enum TicketStatus {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password_hash String?
-  google_id     String?        @unique
-  full_name     String
-  role          Role           @default(STUDENT)
-  tier          Tier           @default(STANDARD)
-  created_at    DateTime       @default(now())
+  id                  String         @id @default(uuid())
+  email               String         @unique
+  password_hash       String?
+  google_id           String?        @unique
+  registration_number String?        @unique
+  full_name           String
+  role                Role           @default(STUDENT)
+  tier                Tier           @default(STANDARD)
+  created_at          DateTime       @default(now())
   
-  tickets       Ticket[]
-  owned_groups  BookingGroup[] @relation("GroupOwner")
-  group_members GroupMember[]
-  audit_logs    AuditLog[]
+  tickets                  Ticket[]
+  owned_groups             BookingGroup[] @relation("GroupOwner")
+  group_members            GroupMember[]
+  audit_logs               AuditLog[]
+  sent_friend_requests     Friendship[]   @relation("FriendRequestsSent")
+  received_friend_requests Friendship[]   @relation("FriendRequestsReceived")
 }
 
 model Bus {
@@ -94,20 +97,24 @@ model Schedule {
   student_booking_starts_at DateTime
   fare_amount               Float
   
-  bus                       Bus      @relation(fields: [bus_id], references: [id])
-  route                     Route    @relation(fields: [route_id], references: [id])
+  bus                       Bus            @relation(fields: [bus_id], references: [id])
+  route                     Route          @relation(fields: [route_id], references: [id])
   tickets                   Ticket[]
+  booking_groups            BookingGroup[]
 }
 
 model BookingGroup {
-  id               String      @id @default(uuid())
+  id                String      @id @default(uuid())
   initiator_user_id String
-  status           GroupStatus @default(OPEN)
-  invite_code      String      @unique
-  created_at       DateTime    @default(now())
+  schedule_id       String?     // Nullable to allow planning before schedule is released
+  booking_date      DateTime?   // specific day for the booking
+  status            GroupStatus @default(OPEN)
+  invite_code       String      @unique
+  created_at        DateTime    @default(now())
   
-  initiator        User          @relation("GroupOwner", fields: [initiator_user_id], references: [id])
-  members          GroupMember[]
+  initiator         User          @relation("GroupOwner", fields: [initiator_user_id], references: [id])
+  schedule          Schedule?     @relation(fields: [schedule_id], references: [id])
+  members           GroupMember[]
 }
 
 model GroupMember {
@@ -141,4 +148,17 @@ model AuditLog {
   timestamp  DateTime @default(now())
   
   user       User     @relation(fields: [user_id], references: [id])
+}
+
+model Friendship {
+  id             String       @id @default(uuid())
+  requester_id   String
+  addressee_id   String
+  status         MemberStatus @default(PENDING) // Reusing PENDING, ACCEPTED, DECLINED
+  created_at     DateTime     @default(now())
+
+  requester      User         @relation("FriendRequestsSent", fields: [requester_id], references: [id])
+  addressee      User         @relation("FriendRequestsReceived", fields: [addressee_id], references: [id])
+
+  @@unique([requester_id, addressee_id])
 }

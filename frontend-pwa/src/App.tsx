@@ -10,6 +10,8 @@ function App() {
   const [selectedRole, setSelectedRole] = useState<'student' | 'faculty' | 'driver' | 'admin' | null>(null);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [groupSize, setGroupSize] = useState(1);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  const [route, setRoute] = useState('tambaram');
   
   const { user } = useUser();
 
@@ -151,7 +153,14 @@ function App() {
                   <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Select Route</h2>
                   <p className="text-sm text-slate-500">Choose your destination for contiguous seat allocation.</p>
                 </div>
-                <select className="bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 focus:border-amber-500 block w-full md:w-64 p-3 shadow-sm transition-all hover:bg-slate-100 cursor-pointer outline-none">
+                <select 
+                  value={route}
+                  onChange={(e) => {
+                    setRoute(e.target.value);
+                    setSelectedSeats([]);
+                  }}
+                  className="bg-slate-50 border-2 border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-amber-500 focus:border-amber-500 block w-full md:w-64 p-3 shadow-sm transition-all hover:bg-slate-100 cursor-pointer outline-none"
+                >
                   <option value="tambaram">Tambaram - VIT (14 seats left)</option>
                   <option value="velachery">Velachery - VIT (2 seats left)</option>
                   <option value="sholinganallur">Sholinganallur - VIT (40 seats left)</option>
@@ -161,13 +170,27 @@ function App() {
 
               <SeatPickerGrid 
                 rows={10} 
-                reservedSeats={[3, 4, 12, 15]} 
-                onSeatSelect={(seats) => console.log('Selected:', seats)} 
+                reservedSeats={route === 'alandur' ? Array.from({length: 56}, (_, i) => i + 1) : [3, 4, 12, 15]} 
+                selectedSeats={selectedSeats}
+                onSeatSelect={setSelectedSeats} 
                 groupSize={groupSize} 
               />
               
               <div className="flex justify-end gap-4 mt-4">
-                <button className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-3 px-6 rounded-xl hover:bg-amber-50 transition-colors">
+                <button 
+                  onClick={() => {
+                    // Simple auto-assign: find first contiguous block of size `groupSize`
+                    const reserved = route === 'alandur' ? Array.from({length: 56}, (_, i) => i + 1) : [3, 4, 12, 15];
+                    const available = Array.from({length: 56}, (_, i) => i + 1).filter(s => !reserved.includes(s));
+                    if (available.length >= groupSize) {
+                      // For a simple demo, just take the first N available seats
+                      setSelectedSeats(available.slice(0, groupSize));
+                    } else {
+                      alert('Not enough contiguous seats available!');
+                    }
+                  }}
+                  className="bg-white border-2 border-amber-500 text-amber-600 font-bold py-3 px-6 rounded-xl hover:bg-amber-50 transition-colors"
+                >
                   Quick Book (Auto-Assign {groupSize} Seat{groupSize > 1 ? 's' : ''})
                 </button>
                 <button className="bg-amber-500 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-amber-600 transition-colors">
@@ -198,7 +221,7 @@ function App() {
                       <option value={1}>1 (Solo)</option>
                       <option value={2}>2 Friends</option>
                       <option value={3}>3 Friends</option>
-                      <option value={4}>4 Friends</option>
+                      <option value={4} disabled>4 Friends (Waiting for 1 to accept)</option>
                     </select>
                   </div>
 

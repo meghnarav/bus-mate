@@ -12,6 +12,7 @@ const Landing: React.FC = () => {
   const isAdmin = user?.publicMetadata?.role === 'admin';
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [lang, setLang] = useState<'en' | 'ta'>('en');
   const [formData, setFormData] = useState({
     firstName: '',
     fullName: '',
@@ -35,7 +36,11 @@ const Landing: React.FC = () => {
         alert('Invalid email or password. Please sign up if you do not have an account.');
       }
     } else {
-      const success = signup(formData);
+      const dataToSubmit = {
+        ...formData,
+        firstName: formData.fullName.split(' ')[0]
+      };
+      const success = signup(dataToSubmit);
       if (success) {
         // Auto-login successful
       } else {
@@ -48,36 +53,55 @@ const Landing: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-[75vh]">
       <SignedOut>
         <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-obsidian-900 tracking-tight">BusMate Portal</h2>
-            <p className="text-sm text-slate-500 mt-2">{mode === 'login' ? 'Sign in to access your dashboard' : 'Create a new account'}</p>
+          <div className="flex justify-between items-start mb-6">
+            <div className="text-left">
+              <h2 className="text-3xl font-black text-obsidian-900 tracking-tight">BusMate Portal</h2>
+              <p className="text-sm text-slate-500 mt-2">{mode === 'login' ? 'Sign in to access your dashboard' : 'Create a new account'}</p>
+            </div>
+            
+            {(mode === 'login' || formData.role === 'driver') && (
+              <div className="flex bg-slate-100 rounded-lg p-1 ml-4 shrink-0">
+                <button 
+                  onClick={() => setLang('en')}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition ${lang === 'en' ? 'bg-white shadow text-obsidian-900' : 'text-slate-500'}`}
+                >
+                  EN
+                </button>
+                <button 
+                  onClick={() => setLang('ta')}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition ${lang === 'ta' ? 'bg-white shadow text-obsidian-900' : 'text-slate-500'}`}
+                >
+                  தமிழ்
+                </button>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase">First Name</label>
-                    <input required type="text" className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
-                    <input required type="text" className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
-                  </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase">
+                    {lang === 'ta' && formData.role === 'driver' ? 'முழு பெயர்' : 'Full Name'}
+                  </label>
+                  <input required type="text" placeholder="Rahul Sharma" className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">Account Role</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase mb-2 block">{lang === 'ta' && formData.role === 'driver' ? 'கணக்கு வகை' : 'Account Role'}</label>
                   <div className="grid grid-cols-3 gap-2">
-                    {['student', 'faculty', 'driver'].map((r) => (
+                    {[
+                      { id: 'student', label: 'student' },
+                      { id: 'faculty', label: 'faculty' },
+                      { id: 'driver', label: 'driver (ஓட்டுநர்)' }
+                    ].map((r) => (
                       <button 
-                        key={r}
+                        key={r.id}
                         type="button"
-                        onClick={() => setFormData({...formData, role: r as any})}
-                        className={`py-2 rounded-lg text-xs font-bold uppercase ${formData.role === r ? 'bg-busmate-500 text-obsidian-900' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                        onClick={() => setFormData({...formData, role: r.id as any})}
+                        className={`py-2 rounded-lg text-xs font-bold uppercase ${formData.role === r.id ? 'bg-busmate-500 text-obsidian-900' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                       >
-                        {r}
+                        {r.label}
                       </button>
                     ))}
                   </div>
@@ -107,9 +131,23 @@ const Landing: React.FC = () => {
                 )}
 
                 {formData.role === 'driver' && (
-                  <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase">Assigned Route</label>
-                    <input required type="text" placeholder="e.g. Tambaram - VIT" className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.route} onChange={e => setFormData({...formData, route: e.target.value})} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 uppercase">{lang === 'ta' ? 'வழித்தடம்' : 'Assigned Route'}</label>
+                      <select required className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.route} onChange={e => setFormData({...formData, route: e.target.value})}>
+                        <option value="Tambaram - VIT">{lang === 'ta' ? 'தாம்பரம் - விஐடி' : 'Tambaram - VIT'}</option>
+                        <option value="Alandur - VIT">{lang === 'ta' ? 'ஆலந்தூர் - விஐடி' : 'Alandur - VIT'}</option>
+                        <option value="Velachery - VIT">{lang === 'ta' ? 'வேளச்சேரி - விஐடி' : 'Velachery - VIT'}</option>
+                        <option value="Sholinganallur - VIT">{lang === 'ta' ? 'சோழிங்கநல்லூர் - விஐடி' : 'Sholinganallur - VIT'}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 uppercase">{lang === 'ta' ? 'பேருந்து வகை' : 'Bus Type'}</label>
+                      <select required className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.subscriptionType} onChange={e => setFormData({...formData, subscriptionType: e.target.value})}>
+                        <option value="AC">{lang === 'ta' ? 'ஏசி பேருந்து' : 'AC Bus'}</option>
+                        <option value="NON-AC">{lang === 'ta' ? 'ஏசி இல்லாத பேருந்து' : 'Non-AC Bus'}</option>
+                      </select>
+                    </div>
                   </div>
                 )}
               </>
@@ -117,25 +155,35 @@ const Landing: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase">{mode === 'login' ? 'Email or Phone' : 'Email Address'}</label>
+                <label className="text-xs font-bold text-slate-500 uppercase">
+                  {mode === 'login' 
+                    ? (lang === 'ta' ? 'மின்னஞ்சல் அல்லது தொலைபேசி' : 'Email or Phone') 
+                    : (lang === 'ta' && formData.role === 'driver' ? 'மின்னஞ்சல்' : 'Email Address')}
+                </label>
                 <input required type="text" placeholder={mode === 'login' ? 'Email or Phone' : 'email@example.com'} className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
               </div>
               
               {mode === 'signup' && (
                 <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase">Phone Number</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase">
+                    {lang === 'ta' && formData.role === 'driver' ? 'தொலைபேசி எண்' : 'Phone Number'}
+                  </label>
                   <input required type="text" placeholder="+91 9876543210" className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
                 </div>
               )}
             </div>
             
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase">Password</label>
+              <label className="text-xs font-bold text-slate-500 uppercase">
+                {lang === 'ta' && (mode === 'login' || formData.role === 'driver') ? 'கடவுச்சொல்' : 'Password'}
+              </label>
               <input required type="password" placeholder="••••••••" className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
             </div>
 
             <button type="submit" className="w-full bg-obsidian-900 text-white font-bold py-3 rounded-xl hover:bg-black transition mt-4">
-              {mode === 'login' ? 'Sign In' : 'Create Account'}
+              {mode === 'login' 
+                ? (lang === 'ta' ? 'உள்நுழைய' : 'Sign In') 
+                : (lang === 'ta' && formData.role === 'driver' ? 'கணக்கை உருவாக்கு' : 'Create Account')}
             </button>
           </form>
 

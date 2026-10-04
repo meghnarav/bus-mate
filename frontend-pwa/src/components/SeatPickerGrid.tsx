@@ -8,13 +8,14 @@ interface SeatPickerGridProps {
   onSeatSelect: (seats: number[]) => void;
   groupSize: number;
   disabled?: boolean;
+  variant?: 'student' | 'driver';
 }
 
 type SeatRow = 
   | { id: string; type: 'split'; left: number[]; right: number[] }
   | { id: string; type: 'joined'; seats: number[] };
 
-const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, selectedSeats, onSeatSelect, groupSize, disabled }) => {
+const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, selectedSeats, onSeatSelect, groupSize, disabled, variant = 'student' }) => {
 
   // Generate the specific seat layout requested:
   // Row 1: 1 left, aisle, 3 right
@@ -87,7 +88,8 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
       iconClass += 'text-obsidian-900 opacity-90';
       textClass += 'text-obsidian-900';
     } else {
-      buttonClass += 'bg-white hover:bg-slate-50 hover:border-busmate-400 border-2 border-slate-200 hover:-translate-y-1 hover:shadow-md cursor-pointer';
+      const baseClass = 'bg-white border-2 border-slate-200 ';
+      buttonClass += baseClass + (disabled ? '' : 'hover:bg-slate-50 hover:border-busmate-400 hover:-translate-y-1 hover:shadow-md cursor-pointer');
       iconClass += 'text-slate-300';
       textClass += 'text-slate-600';
     }
@@ -96,7 +98,7 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
       <button
         key={`seat-${seatNum}`}
         onClick={() => toggleSeat(seatNum)}
-        disabled={isReserved}
+        disabled={disabled || isReserved}
         className={buttonClass}
       >
         <Armchair strokeWidth={2.5} className={iconClass} />
@@ -108,25 +110,27 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
   return (
     <div className="w-full max-w-lg mx-auto bg-slate-50 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
       
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-busmate-400/20 rounded-2xl text-busmate-600">
-            <Bus size={24} />
+      {/* Header (Hidden for driver) */}
+      {variant !== 'driver' && (
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 bg-busmate-400/20 rounded-2xl text-busmate-600">
+              <Bus size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Select Seats</h3>
+              <p className="text-sm text-slate-500 font-medium mt-0.5">Front Entrance</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-slate-800 tracking-tight">Select Seats</h3>
-            <p className="text-sm text-slate-500 font-medium mt-0.5">Front Entrance</p>
+          
+          <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-200">
+            <Users size={18} className="text-busmate-500" />
+            <span className="font-bold text-slate-700">
+              <span className="text-busmate-600">{selectedSeats.length}</span> / {groupSize}
+            </span>
           </div>
         </div>
-        
-        <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-200">
-          <Users size={18} className="text-busmate-500" />
-          <span className="font-bold text-slate-700">
-            <span className="text-busmate-600">{selectedSeats.length}</span> / {groupSize}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Driver Cabin Indicator (India RHD) */}
       <div className="w-full h-12 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 rounded-t-3xl rounded-b-lg mb-8 flex items-center justify-between px-6 border-b-4 border-slate-400 opacity-80">
@@ -192,16 +196,18 @@ const SeatPickerGrid: React.FC<SeatPickerGridProps> = ({ rows, reservedSeats, se
       <div className="mt-8 flex items-center justify-center gap-6">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-md border-2 border-slate-200 bg-white"></div>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Available</span>
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{variant === 'driver' ? 'Empty' : 'Available'}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-md border-2 border-slate-300 bg-slate-200"></div>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Reserved</span>
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{variant === 'driver' ? 'Filled' : 'Reserved'}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-md border-2 border-busmate-600 bg-gradient-to-br from-busmate-400 to-busmate-500"></div>
-          <span className="text-xs font-semibold text-busmate-600 uppercase tracking-wider">Selected</span>
-        </div>
+        {variant !== 'driver' && (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-md border-2 border-busmate-600 bg-gradient-to-br from-busmate-400 to-busmate-500"></div>
+            <span className="text-xs font-semibold text-busmate-600 uppercase tracking-wider">Selected</span>
+          </div>
+        )}
       </div>
 
     </div>

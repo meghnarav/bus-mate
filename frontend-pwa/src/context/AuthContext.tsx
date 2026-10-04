@@ -31,6 +31,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const login = (identifier: string, pass: string) => {
+    // Hardcoded Admin Account
+    if (identifier.toLowerCase() === 'meghnaravikumar06@gmail.com' && pass === 'admin123') {
+      const adminProfile: UserProfile = {
+        id: 'admin-001',
+        firstName: 'Meghna',
+        fullName: 'Meghna Ravikumar',
+        email: 'meghnaravikumar06@gmail.com',
+        role: 'admin',
+        imageUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=Meghna`,
+      };
+      setUser(adminProfile);
+      localStorage.setItem('busmate_auth_user', JSON.stringify(adminProfile));
+      return true;
+    }
+
+    // Normal Users
     const users = JSON.parse(localStorage.getItem('busmate_users') || '[]');
     const found = users.find((u: any) => (u.email === identifier || u.phone === identifier) && u.password === pass);
     if (found) {

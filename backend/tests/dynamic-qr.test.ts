@@ -1,5 +1,5 @@
 import { DynamicQREngine } from '../src/services/dynamic-qr.service';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 describe('DynamicQREngine', () => {
   const qrEngine = new DynamicQREngine();

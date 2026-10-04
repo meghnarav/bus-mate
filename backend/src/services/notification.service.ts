@@ -1,10 +1,11 @@
-import * as admin from 'firebase-admin';
+import { initializeApp, applicationDefault, getApps } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 
 // Initialize Firebase Admin (Ensure GOOGLE_APPLICATION_CREDENTIALS is set in env)
-if (!admin.apps.length) {
+if (getApps().length === 0) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
+    initializeApp({
+      credential: applicationDefault(),
     });
   } catch (error) {
     console.warn('Firebase Admin initialization failed. Push notifications will be disabled.');
@@ -31,7 +32,7 @@ export class NotificationService {
         token: deviceToken,
       };
 
-      const response = await admin.messaging().send(message);
+      const response = await getMessaging().send(message);
       console.log('Successfully sent push notification:', response);
       return true;
     } catch (error) {
@@ -59,7 +60,7 @@ export class NotificationService {
         topic,
       };
 
-      const response = await admin.messaging().send(message);
+      const response = await getMessaging().send(message);
       console.log(`Successfully broadcasted to topic ${topic}:`, response);
       return true;
     } catch (error) {

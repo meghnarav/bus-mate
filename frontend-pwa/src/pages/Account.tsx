@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { getUserRole } from '../utils/role';
 
 const Account: React.FC = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const role = getUserRole(user);
 
   // Load from localStorage or use defaults
@@ -70,7 +70,7 @@ const Account: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Official Email</p>
-                <p className="font-bold text-slate-800">{user?.primaryEmailAddress?.emailAddress}</p>
+                <p className="font-bold text-slate-800">{user?.email}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Branch / Department</p>

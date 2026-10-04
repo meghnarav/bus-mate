@@ -219,7 +219,7 @@ const DriverScanner: React.FC = () => {
                 <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 grid grid-cols-2 gap-4">
                   <div className="col-span-2">
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{t.driverContact}</p>
-                    <p className="text-sm font-bold text-slate-800">{user?.name || 'Selvam K.'} • +91 98765 43210</p>
+                    <p className="text-sm font-bold text-slate-800">{user?.fullName || 'Selvam K.'} • +91 98765 43210</p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">{t.busTypeRoute}</p>

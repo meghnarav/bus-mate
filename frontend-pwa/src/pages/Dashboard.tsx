@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { SocialModals } from '../components/SocialModals';
 import { getUserRole } from '../utils/role';
@@ -12,7 +12,7 @@ interface SavedGroup {
 }
 
 const Dashboard: React.FC = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const isFaculty = getUserRole(user) === 'faculty';
 

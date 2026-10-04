@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { mockStudents, Student } from '../data/mockStudents';
 
 const Friends: React.FC = () => {

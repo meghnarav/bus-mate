@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { SignedIn, UserButton, useUser } from './context/AuthContext';
+import { SignedIn, UserButton, useAuth } from './context/AuthContext';
 import { getUserRole } from './utils/role';
 
 import Landing from './pages/Landing';
@@ -15,7 +15,7 @@ import Account from './pages/Account';
 import AdminDashboard from './pages/AdminDashboard';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const role = getUserRole(user);
   const isDriver = role === 'driver';
   const isAdmin = role === 'admin';

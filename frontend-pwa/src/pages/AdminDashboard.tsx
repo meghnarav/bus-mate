@@ -15,16 +15,28 @@ const AdminDashboard: React.FC = () => {
   };
 
   const mockBookings = [
-    { id: 'TKT-1X9A', name: 'Rahul Sharma', route: 'Tambaram', bus: 'AC', date: '2023-10-25 14:30' },
-    { id: 'TKT-2B4C', name: 'Priya Patel', route: 'Velachery', bus: 'NON-AC', date: '2023-10-25 15:00' },
-    { id: 'TKT-9M2Z', name: 'Arjun Reddy', route: 'Alandur', bus: 'AC', date: '2023-10-25 16:15' },
-    { id: 'TKT-7K1L', name: 'Ananya Desai', route: 'Tambaram', bus: 'AC', date: '2023-10-25 14:35' },
+    { id: 'TKT-1X9A', name: 'Rahul Sharma', route: 'Tambaram', bus: 'AC', date: '2023-10-25 14:30', noOfSeats: 1, seats: ['12'], subMembers: [] },
+    { id: 'TKT-2B4C', name: 'Priya Patel', route: 'Velachery', bus: 'NON-AC', date: '2023-10-25 15:00', noOfSeats: 3, seats: ['15', '16', '17'], subMembers: ['Riya Patel', 'Neha Singh'] },
+    { id: 'TKT-9M2Z', name: 'Arjun Reddy', route: 'Alandur', bus: 'AC', date: '2023-10-25 16:15', noOfSeats: 1, seats: ['4'], subMembers: [] },
+    { id: 'TKT-7K1L', name: 'Ananya Desai', route: 'Tambaram', bus: 'AC', date: '2023-10-25 14:35', noOfSeats: 4, seats: ['21', '22', '23', '24'], subMembers: ['Aditi Rao', 'Sneha M', 'Karan J'] },
   ];
 
   const [routes, setRoutes] = useState([
     { id: 'tambaram', name: 'Tambaram - VIT', stops: ['Tambaram', 'Perungalathur', 'Vandalur', 'VIT'] },
+    { id: 'alandur', name: 'Alandur - VIT', stops: ['Alandur', 'Guindy', 'Pallavaram', 'Chromepet', 'VIT'] },
     { id: 'velachery', name: 'Velachery - VIT', stops: ['Velachery', 'Pallikaranai', 'Medavakkam', 'VIT'] },
+    { id: 'sholinganallur', name: 'Sholinganallur - VIT', stops: ['Sholinganallur', 'Navalur', 'Kelambakkam', 'VIT'] },
   ]);
+
+  const handleEditStops = (routeId: string) => {
+    const route = routes.find(r => r.id === routeId);
+    if (route) {
+      const stopsStr = prompt(`Edit stops for ${route.name} (comma separated):`, route.stops.join(', '));
+      if (stopsStr) {
+        setRoutes(routes.map(r => r.id === routeId ? { ...r, stops: stopsStr.split(',').map(s => s.trim()) } : r));
+      }
+    }
+  };
 
   const handleAddRoute = () => {
     const name = prompt('Enter Route Name (e.g., Guindy - VIT):');
@@ -100,7 +112,8 @@ const AdminDashboard: React.FC = () => {
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                     <th className="p-4 font-bold rounded-tl-xl">Ticket ID</th>
-                    <th className="p-4 font-bold">Passenger</th>
+                    <th className="p-4 font-bold">Passenger (s)</th>
+                    <th className="p-4 font-bold">Seats</th>
                     <th className="p-4 font-bold">Route</th>
                     <th className="p-4 font-bold">Bus Type</th>
                     <th className="p-4 font-bold rounded-tr-xl">Timestamp</th>
@@ -110,7 +123,22 @@ const AdminDashboard: React.FC = () => {
                   {mockBookings.map(b => (
                     <tr key={b.id} className="hover:bg-slate-50 transition-colors">
                       <td className="p-4 font-mono font-bold text-purple-600">{b.id}</td>
-                      <td className="p-4 font-bold text-slate-800">{b.name}</td>
+                      <td className="p-4">
+                        <span className="font-bold text-slate-800 block">{b.name}</span>
+                        {b.subMembers.length > 0 && (
+                          <span className="text-xs text-slate-500 font-medium mt-1 block">
+                            + {b.subMembers.join(', ')}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <span className="font-bold text-obsidian-900 bg-amber-100 px-2 py-1 rounded text-xs">
+                          {b.noOfSeats} {b.noOfSeats > 1 ? 'Seats' : 'Seat'}
+                        </span>
+                        <div className="text-xs text-slate-500 mt-1 font-mono">
+                          {b.seats.join(', ')}
+                        </div>
+                      </td>
                       <td className="p-4 font-medium text-slate-600">{b.route}</td>
                       <td className="p-4"><span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">{b.bus}</span></td>
                       <td className="p-4 text-sm text-slate-500">{b.date}</td>
@@ -154,7 +182,7 @@ const AdminDashboard: React.FC = () => {
                     ))}
                   </div>
                   
-                  <button className="mt-6 w-full py-2 bg-slate-50 text-slate-600 font-bold rounded-lg text-sm hover:bg-slate-100 border border-slate-200">
+                  <button onClick={() => handleEditStops(route.id)} className="mt-6 w-full py-2 bg-slate-50 text-slate-600 font-bold rounded-lg text-sm hover:bg-slate-100 border border-slate-200">
                     Edit Stops
                   </button>
                 </div>

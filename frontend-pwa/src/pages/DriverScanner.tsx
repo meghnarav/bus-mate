@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserMultiFormatReader } from '@zxing/library';
-import { CheckCircle, XCircle, Camera, Globe, Bus, MapPin, Users, Navigation } from 'lucide-react';
+import { LogOut, CheckCircle, XCircle, Camera, Globe, Bus, MapPin, Users, Navigation } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-
+import { useNavigate } from 'react-router-dom';
+import { BrowserMultiFormatReader } from '@zxing/library';
+import { getBookings } from '../data/mockBookings';
 interface ScanResult {
   success: boolean;
   passengerName?: string;
@@ -29,6 +30,7 @@ const translations = {
     stops: 'Route Stops',
     seatMatrix: 'Seat Matrix',
     boarded: 'Boarded',
+    logout: 'Logout',
   },
   ta: {
     terminalTitle: 'ஓட்டுநர் முனையம்',
@@ -48,6 +50,7 @@ const translations = {
     stops: 'வழித்தட நிறுத்தங்கள்',
     seatMatrix: 'இருக்கை அமைப்பு',
     boarded: 'ஏறியவர்கள்',
+    logout: 'வெளியேறு',
   }
 };
 
@@ -58,19 +61,28 @@ const ROUTES_DB: Record<string, string[]> = {
   'Sholinganallur - VIT': ['Sholinganallur', 'Navalur', 'Kelambakkam', 'VIT'],
 };
 
-// Mock seats data (true = booked, false = empty)
-const generateMockSeats = () => {
+// Load seats from live database
+const loadSeats = (route: string, busType: string) => {
   const seats = Array(40).fill(false);
-  // Randomly book some seats
-  const numBooked = Math.floor(Math.random() * 15) + 10;
-  for (let i = 0; i < numBooked; i++) {
-    seats[Math.floor(Math.random() * 40)] = true;
-  }
+  const bookings = getBookings();
+  
+  bookings.forEach(b => {
+    // Only map seats if it matches the driver's route and bus type
+    if (b.route === route && b.bus === busType) {
+      b.seats.forEach(seatStr => {
+        const seatNum = parseInt(seatStr, 10);
+        if (!isNaN(seatNum) && seatNum > 0 && seatNum <= 40) {
+          seats[seatNum - 1] = true;
+        }
+      });
+    }
+  });
   return seats;
 };
 
 const DriverScanner: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const driverRoute = user?.route || 'Tambaram - VIT';
   const busType = user?.subscriptionType || 'AC';
   
@@ -86,8 +98,14 @@ const DriverScanner: React.FC = () => {
   const busNumber = `TN-0${Math.floor(Math.random() * 9) + 1}-${busType === 'AC' ? 'AC' : 'NA'}-${Math.floor(Math.random() * 9000) + 1000}`;
 
   useEffect(() => {
-    setSeatMatrix(generateMockSeats());
-  }, []);
+    setSeatMatrix(loadSeats(driverRoute, busType));
+    
+    // Poll for live updates
+    const interval = setInterval(() => {
+      setSeatMatrix(loadSeats(driverRoute, busType));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [driverRoute, busType]);
 
   const totalExpected = seatMatrix.filter(s => s).length;
 
@@ -135,6 +153,11 @@ const DriverScanner: React.FC = () => {
   const resumeScanning = () => {
     setScanResult(null);
     setIsScanning(true);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -194,12 +217,12 @@ const DriverScanner: React.FC = () => {
 
       {/* RIGHT PANEL - SCANNER */}
       <div className="flex-1 flex flex-col bg-slate-900 text-white relative">
-        <div className="p-6 flex items-center justify-between border-b border-white/10 z-10 bg-slate-900/80 backdrop-blur-md">
+        <div className="p-6 flex flex-wrap items-center justify-between border-b border-white/10 z-10 bg-slate-900/80 backdrop-blur-md gap-4">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Camera size={24} className="text-amber-400" />
             {t.terminalTitle}
           </h1>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <button 
               onClick={() => setLang(lang === 'en' ? 'ta' : 'en')}
               className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
@@ -211,6 +234,13 @@ const DriverScanner: React.FC = () => {
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               {t.live}
             </span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/40 text-red-200 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+            >
+              <LogOut size={16} />
+              {t.logout}
+            </button>
           </div>
         </div>
 

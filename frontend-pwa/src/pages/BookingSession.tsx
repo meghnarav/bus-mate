@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import SeatPickerGrid from '../components/SeatPickerGrid';
 import DynamicQRCode from '../components/DynamicQRCode';
+import { getBookings, saveBookings } from '../data/mockBookings';
 
 const BookingSession: React.FC = () => {
   const { sessionId } = useParams();
@@ -190,6 +191,25 @@ const BookingSession: React.FC = () => {
                         timestamp: Date.now()
                       };
                       localStorage.setItem('activeTicket', JSON.stringify(ticket));
+                      
+                      // Add to Live Bookings DB
+                      const userStr = localStorage.getItem('busmate_auth_user');
+                      const user = userStr ? JSON.parse(userStr) : { fullName: 'Unknown Passenger' };
+                      
+                      const newBooking = {
+                        id: `TKT-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+                        name: user.fullName,
+                        route: `${route.charAt(0).toUpperCase() + route.slice(1)} - VIT`,
+                        bus: busType,
+                        date: new Date().toLocaleString('en-US', { hour12: false }).substring(0, 16),
+                        noOfSeats: selectedSeats.length,
+                        seats: selectedSeats.map(String),
+                        subMembers: groupSize > 1 ? Array.from({length: groupSize - 1}, (_, i) => `Friend ${i + 1}`) : []
+                      };
+                      
+                      const live = getBookings();
+                      saveBookings([newBooking, ...live]);
+
                       alert('Booking confirmed successfully!');
                       navigate('/bookings');
                     } else {

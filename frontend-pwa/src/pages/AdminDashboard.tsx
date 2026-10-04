@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getBookings, Booking } from '../data/mockBookings';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'bookings' | 'routes'>('bookings');
+  const [liveBookings, setLiveBookings] = useState<Booking[]>([]);
   const { simulateRole } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setLiveBookings(getBookings());
+    
+    // Poll for live updates
+    const interval = setInterval(() => {
+      setLiveBookings(getBookings());
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSimulate = (role: 'student' | 'faculty' | 'driver') => {
     if (simulateRole) {
@@ -13,13 +25,6 @@ const AdminDashboard: React.FC = () => {
       navigate(role === 'driver' ? '/driver' : '/dashboard');
     }
   };
-
-  const mockBookings = [
-    { id: 'TKT-1X9A', name: 'Rahul Sharma', route: 'Tambaram', bus: 'AC', date: '2023-10-25 14:30', noOfSeats: 1, seats: ['12'], subMembers: [] },
-    { id: 'TKT-2B4C', name: 'Priya Patel', route: 'Velachery', bus: 'NON-AC', date: '2023-10-25 15:00', noOfSeats: 3, seats: ['15', '16', '17'], subMembers: ['Riya Patel', 'Neha Singh'] },
-    { id: 'TKT-9M2Z', name: 'Arjun Reddy', route: 'Alandur', bus: 'AC', date: '2023-10-25 16:15', noOfSeats: 1, seats: ['4'], subMembers: [] },
-    { id: 'TKT-7K1L', name: 'Ananya Desai', route: 'Tambaram', bus: 'AC', date: '2023-10-25 14:35', noOfSeats: 4, seats: ['21', '22', '23', '24'], subMembers: ['Aditi Rao', 'Sneha M', 'Karan J'] },
-  ];
 
   const [routes, setRoutes] = useState([
     { id: 'tambaram', name: 'Tambaram - VIT', stops: ['Tambaram', 'Perungalathur', 'Vandalur', 'VIT'] },
@@ -79,7 +84,7 @@ const AdminDashboard: React.FC = () => {
           <p className="text-purple-200">Manage fleet operations, bookings, and route definitions.</p>
         </div>
         <div className="bg-white/10 p-4 rounded-2xl border border-white/20 text-center">
-          <p className="text-4xl font-black text-amber-400">{mockBookings.length}</p>
+          <p className="text-4xl font-black text-amber-400">{liveBookings.length}</p>
           <p className="text-xs uppercase font-bold tracking-wider">Active Bookings</p>
         </div>
       </div>
@@ -120,7 +125,7 @@ const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {mockBookings.map(b => (
+                  {liveBookings.map(b => (
                     <tr key={b.id} className="hover:bg-slate-50 transition-colors">
                       <td className="p-4 font-mono font-bold text-purple-600">{b.id}</td>
                       <td className="p-4">

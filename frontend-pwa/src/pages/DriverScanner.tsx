@@ -111,7 +111,18 @@ const DriverScanner: React.FC = () => {
 
   const t = translations[lang];
   const stops = ROUTES_DB[driverRoute] || ROUTES_DB['Tambaram - VIT'];
-  const busNumber = `TN-0${Math.floor(Math.random() * 9) + 1}-${busType === 'AC' ? 'AC' : 'NA'}-${Math.floor(Math.random() * 9000) + 1000}`;
+  
+  // Stable deterministic bus number based on route and busType
+  const busNumber = React.useMemo(() => {
+    const routeCodes: Record<string, string> = {
+      'Tambaram - VIT': 'TBM-101',
+      'Alandur - VIT': 'ALD-202',
+      'Velachery - VIT': 'VEL-303',
+      'Sholinganallur - VIT': 'SHL-404',
+    };
+    const code = routeCodes[driverRoute] || 'VIT-505';
+    return `TN-22-BY-${code}-${busType === 'AC' ? 'AC' : 'NA'}`;
+  }, [driverRoute, busType]);
 
   useEffect(() => {
     setSeatMatrix(loadSeats(driverRoute, busType));

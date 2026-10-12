@@ -11,11 +11,20 @@ const BookingSession: React.FC = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   
-  const origin = query.get('route') || 'Hostel Block D';
-  const dest = query.get('dest') || 'Tech Park / AB3';
-  const shuttleCode = query.get('code') || 'SH-102';
-  const busType = query.get('type') || 'Electric Express';
+  const rawRoute = query.get('route') || 'tambaram';
+  const busType = query.get('type') || 'AC';
   const groupSize = Number(query.get('groupSize')) || 1;
+
+  // Format capitalized origin and dest
+  const origin = rawRoute.charAt(0).toUpperCase() + rawRoute.slice(1);
+  const dest = 'VIT Chennai';
+  const routeCodeMap: Record<string, string> = {
+    tambaram: 'TBM-101',
+    alandur: 'ALD-202',
+    velachery: 'VEL-303',
+    sholinganallur: 'SHL-404',
+  };
+  const shuttleCode = query.get('code') || routeCodeMap[rawRoute.toLowerCase()] || 'VIT-505';
 
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes lock
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);

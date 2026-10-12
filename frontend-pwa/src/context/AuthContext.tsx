@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullName: 'Meghna Ravikumar',
         email: 'meghnaravikumar06@gmail.com',
         role: 'admin',
-        imageUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=Meghna`,
+        imageUrl: `https://ui-avatars.com/api/?name=Meghna+Ravikumar&background=D82C2C&color=fff&bold=true&rounded=true&size=128`,
       };
       setUser(adminProfile);
       localStorage.setItem('busmate_auth_user', JSON.stringify(adminProfile));
@@ -52,6 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (found) {
       const profile = { ...found };
       delete profile.password;
+      // Upgrade avatar if using old dicebear avataaars
+      if (!profile.imageUrl || profile.imageUrl.includes('avataaars')) {
+        const nameParam = encodeURIComponent(profile.fullName || profile.firstName || 'User');
+        profile.imageUrl = `https://ui-avatars.com/api/?name=${nameParam}&background=0F172A&color=fff&bold=true&rounded=true&size=128`;
+      }
       setUser(profile);
       localStorage.setItem('busmate_auth_user', JSON.stringify(profile));
       return true;
@@ -65,10 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false; // Email exists
     }
     
+    const nameParam = encodeURIComponent(data.fullName || data.firstName || 'User');
     const newUser = {
       ...data,
       id: Math.random().toString(36).substring(2, 9),
-      imageUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.firstName}`,
+      imageUrl: `https://ui-avatars.com/api/?name=${nameParam}&background=0F172A&color=fff&bold=true&rounded=true&size=128`,
     };
     
     users.push(newUser);

@@ -42,7 +42,11 @@ const Account: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="bg-obsidian-900 rounded-3xl p-8 text-white shadow-xl flex items-center gap-6 border-l-4 border-busmate-400">
-        <img src={user?.imageUrl} alt="Profile" className="w-24 h-24 rounded-full border-4 border-busmate-400 shadow-lg" />
+        <img 
+          src={user?.imageUrl?.includes('avataaars') ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=0F172A&color=fff&bold=true&rounded=true&size=128` : (user?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=0F172A&color=fff&bold=true&rounded=true&size=128`)} 
+          alt="Profile" 
+          className="w-24 h-24 rounded-full border-4 border-transit-red shadow-lg object-cover" 
+        />
         <div>
           <h2 className="text-3xl font-black mb-1">{user?.fullName}</h2>
           <p className="text-busmate-400 font-bold uppercase tracking-wider text-sm">{role}</p>

@@ -67,11 +67,11 @@ export const DigitalBoardingTicket: React.FC<DigitalBoardingTicketProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-transit-red flex items-center justify-center font-black text-white text-sm">
-                CT
+                BM
               </div>
               <div>
                 <span className="font-black text-sm tracking-tight text-white block">
-                  Campus Transit
+                  BusMate
                 </span>
                 <span className="text-[10px] font-mono uppercase text-slate-400 block -mt-0.5">
                   Official M-Ticket
@@ -171,7 +171,7 @@ export const DigitalBoardingTicket: React.FC<DigitalBoardingTicketProps> = ({
             
             {/* Watermark Logo in center */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-mono font-black text-xs text-transit-red shadow-sm">
-              CT
+              BM
             </div>
           </div>
 

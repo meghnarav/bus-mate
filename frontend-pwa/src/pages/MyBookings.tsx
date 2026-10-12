@@ -30,7 +30,7 @@ const MyBookings: React.FC = () => {
     registrationNumber: user?.registrationNumber || '21BCE1042',
     studentName: user?.fullName || 'Student Passenger',
     shuttleCode: activeTicket.shuttleCode || 'SH-102',
-    shuttleName: 'Campus Transit Shuttle',
+    shuttleName: 'BusMate Campus Shuttle',
     origin: activeTicket.route?.split('→')[0]?.trim() || activeTicket.route || 'Hostel Block D',
     destination: activeTicket.route?.split('→')[1]?.trim() || 'Tech Park / AB3',
     departureTime: '08:15 AM',

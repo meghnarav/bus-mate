@@ -67,7 +67,7 @@ const BookingSession: React.FC = () => {
       registrationNumber: user.registrationNumber || '21BCE1042',
       studentName: user.fullName || 'Student Passenger',
       shuttleCode,
-      shuttleName: 'Campus Transit Shuttle',
+      shuttleName: 'BusMate Campus Shuttle',
       origin,
       destination: dest,
       departureTime: '08:15 AM',

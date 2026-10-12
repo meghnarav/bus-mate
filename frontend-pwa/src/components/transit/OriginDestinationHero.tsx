@@ -45,7 +45,7 @@ export const OriginDestinationHero: React.FC<OriginDestinationHeroProps> = ({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-transit-redLight text-transit-red text-xs font-bold uppercase tracking-wider mb-2">
               <span className="w-2 h-2 rounded-full bg-transit-red animate-ping" />
-              VIT Campus Express Transit
+              BusMate Express Transit
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-transit-ink tracking-tight">
               Where are you commuting today?

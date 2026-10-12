@@ -9,7 +9,7 @@ import {
   TransitRoute,
   RouteOption,
 } from '../components/transit';
-import { Users, Filter, SlidersHorizontal, Info, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Users, Filter, ArrowRight, Bus, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface SavedGroup {
   id: string;
@@ -18,93 +18,209 @@ interface SavedGroup {
   isFavorite: boolean;
 }
 
-const CAMPUS_LANDMARKS: RouteOption[] = [
-  { id: 'hostel-d', name: 'Hostel Block D', landmark: 'North Gate Plaza' },
-  { id: 'hostel-a', name: 'Hostel Block A & B', landmark: 'Student Hub Terminal' },
-  { id: 'tech-park', name: 'Tech Park / AB3', landmark: 'Main Academic Quad' },
-  { id: 'main-gate', name: 'VIT Main Gate', landmark: 'Kelambakkam Highway Stop' },
-  { id: 'sports-complex', name: 'Indoor Sports Arena', landmark: 'South Boundary Road' },
-  { id: 'library', name: 'Central Library', landmark: 'Clock Tower Circle' },
+// Exactly the 4 main destinations/origins requested:
+// Tambaram, Alandur, Velachery, Sholinganallur ⇄ VIT Chennai
+const DESTINATIONS: RouteOption[] = [
+  { id: 'tambaram', name: 'Tambaram', landmark: 'Sanatorium Bus Terminus / Railway Station' },
+  { id: 'alandur', name: 'Alandur', landmark: 'Alandur Metro Station Interchange' },
+  { id: 'velachery', name: 'Velachery', landmark: 'Vijaya Nagar Junction / MRTS' },
+  { id: 'sholinganallur', name: 'Sholinganallur', landmark: 'OMR Junction / ELCOT IT Park' },
 ];
 
-const MOCK_ROUTES: TransitRoute[] = [
-  {
-    id: 'route-1',
-    shuttleCode: 'SH-102',
-    shuttleName: 'Campus Express Line 1',
-    category: 'Electric Express',
-    departureTime: '08:15 AM',
-    arrivalTime: '08:30 AM',
-    duration: '15 mins',
-    originLandmark: 'Hostel Block D',
-    destinationLandmark: 'Tech Park / AB3',
-    seatsTotal: 40,
-    seatsAvailable: 8,
-    status: 'filling',
-    fare: 0,
-    nextStopETA: '2 mins',
-    isFemalePriority: true,
-  },
-  {
-    id: 'route-2',
-    shuttleCode: 'SH-204',
-    shuttleName: 'Kelambakkam Shuttle Direct',
-    category: 'AC',
-    departureTime: '08:35 AM',
-    arrivalTime: '08:55 AM',
-    duration: '20 mins',
-    originLandmark: 'Hostel Block D',
-    destinationLandmark: 'VIT Main Gate',
-    seatsTotal: 40,
-    seatsAvailable: 22,
-    status: 'live',
-    fare: 0,
-    nextStopETA: '6 mins',
-    isFemalePriority: true,
-  },
-  {
-    id: 'route-3',
-    shuttleCode: 'SH-308',
-    shuttleName: 'Academic Quad Circular',
-    category: 'Electric Express',
-    departureTime: '09:00 AM',
-    arrivalTime: '09:12 AM',
-    duration: '12 mins',
-    originLandmark: 'Hostel Block A & B',
-    destinationLandmark: 'Central Library',
-    seatsTotal: 40,
-    seatsAvailable: 16,
-    status: 'live',
-    fare: 0,
-    nextStopETA: 'On Time',
-    isFemalePriority: false,
-  },
-  {
-    id: 'route-4',
-    shuttleCode: 'SH-412',
-    shuttleName: 'Evening Hostel Feeder',
-    category: 'Non-AC',
-    departureTime: '05:30 PM',
-    arrivalTime: '05:48 PM',
-    duration: '18 mins',
-    originLandmark: 'Tech Park / AB3',
-    destinationLandmark: 'Hostel Block D',
-    seatsTotal: 40,
-    seatsAvailable: 0,
-    status: 'soldOut',
-    fare: 0,
-    isFemalePriority: true,
-  },
-];
+const VIT_CAMPUS: RouteOption = {
+  id: 'vit',
+  name: 'VIT Chennai',
+  landmark: 'Main Campus Quad / Gate 1 Transport Bay',
+};
+
+// Shuttles connecting VIT Chennai and the 4 routes
+const ALL_CORRIDOR_SHUTTLES: Record<string, TransitRoute[]> = {
+  tambaram: [
+    {
+      id: 'sh-tbm-1',
+      shuttleCode: 'TBM-01',
+      shuttleName: 'Tambaram Express Shuttle',
+      category: 'AC',
+      departureTime: '08:15 AM',
+      arrivalTime: '08:50 AM',
+      duration: '35 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Tambaram',
+      seatsTotal: 50,
+      seatsAvailable: 14,
+      status: 'live',
+      fare: 0,
+      nextStopETA: 'On Time',
+      isFemalePriority: true,
+    },
+    {
+      id: 'sh-tbm-2',
+      shuttleCode: 'TBM-02',
+      shuttleName: 'Tambaram Regular Shuttle',
+      category: 'Non-AC',
+      departureTime: '08:45 AM',
+      arrivalTime: '09:25 AM',
+      duration: '40 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Tambaram',
+      seatsTotal: 50,
+      seatsAvailable: 6,
+      status: 'filling',
+      fare: 0,
+      nextStopETA: '5 mins',
+      isFemalePriority: true,
+    },
+    {
+      id: 'sh-tbm-3',
+      shuttleCode: 'TBM-03',
+      shuttleName: 'Tambaram Evening Express',
+      category: 'Electric Express',
+      departureTime: '05:15 PM',
+      arrivalTime: '05:50 PM',
+      duration: '35 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Tambaram',
+      seatsTotal: 50,
+      seatsAvailable: 28,
+      status: 'live',
+      fare: 0,
+      nextStopETA: '10 mins',
+      isFemalePriority: false,
+    },
+  ],
+  alandur: [
+    {
+      id: 'sh-ald-1',
+      shuttleCode: 'ALD-01',
+      shuttleName: 'Alandur Metro Direct',
+      category: 'AC',
+      departureTime: '08:00 AM',
+      arrivalTime: '08:45 AM',
+      duration: '45 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Alandur',
+      seatsTotal: 50,
+      seatsAvailable: 0,
+      status: 'soldOut',
+      fare: 0,
+      isFemalePriority: true,
+    },
+    {
+      id: 'sh-ald-2',
+      shuttleCode: 'ALD-02',
+      shuttleName: 'Alandur Express Line',
+      category: 'Electric Express',
+      departureTime: '08:30 AM',
+      arrivalTime: '09:15 AM',
+      duration: '45 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Alandur',
+      seatsTotal: 50,
+      seatsAvailable: 18,
+      status: 'live',
+      fare: 0,
+      nextStopETA: '3 mins',
+      isFemalePriority: true,
+    },
+    {
+      id: 'sh-ald-3',
+      shuttleCode: 'ALD-03',
+      shuttleName: 'Alandur Evening Express',
+      category: 'Non-AC',
+      departureTime: '05:00 PM',
+      arrivalTime: '05:50 PM',
+      duration: '50 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Alandur',
+      seatsTotal: 50,
+      seatsAvailable: 22,
+      status: 'live',
+      fare: 0,
+      isFemalePriority: false,
+    },
+  ],
+  velachery: [
+    {
+      id: 'sh-vel-1',
+      shuttleCode: 'VEL-01',
+      shuttleName: 'Velachery Bypass Shuttle',
+      category: 'AC',
+      departureTime: '08:10 AM',
+      arrivalTime: '08:55 AM',
+      duration: '45 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Velachery',
+      seatsTotal: 50,
+      seatsAvailable: 4,
+      status: 'filling',
+      fare: 0,
+      nextStopETA: '2 mins',
+      isFemalePriority: true,
+    },
+    {
+      id: 'sh-vel-2',
+      shuttleCode: 'VEL-02',
+      shuttleName: 'Velachery MRTS Express',
+      category: 'Electric Express',
+      departureTime: '08:40 AM',
+      arrivalTime: '09:25 AM',
+      duration: '45 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Velachery',
+      seatsTotal: 50,
+      seatsAvailable: 31,
+      status: 'live',
+      fare: 0,
+      nextStopETA: '8 mins',
+      isFemalePriority: false,
+    },
+  ],
+  sholinganallur: [
+    {
+      id: 'sh-shl-1',
+      shuttleCode: 'SHL-01',
+      shuttleName: 'Sholinganallur OMR Corridor',
+      category: 'AC',
+      departureTime: '08:20 AM',
+      arrivalTime: '08:50 AM',
+      duration: '30 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Sholinganallur',
+      seatsTotal: 50,
+      seatsAvailable: 19,
+      status: 'live',
+      fare: 0,
+      nextStopETA: 'On Time',
+      isFemalePriority: true,
+    },
+    {
+      id: 'sh-shl-2',
+      shuttleCode: 'SHL-02',
+      shuttleName: 'Sholinganallur Non-AC Feeder',
+      category: 'Non-AC',
+      departureTime: '08:50 AM',
+      arrivalTime: '09:25 AM',
+      duration: '35 mins',
+      originLandmark: 'VIT Chennai',
+      destinationLandmark: 'Sholinganallur',
+      seatsTotal: 50,
+      seatsAvailable: 12,
+      status: 'live',
+      fare: 0,
+      nextStopETA: '4 mins',
+      isFemalePriority: false,
+    },
+  ],
+};
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isFaculty = getUserRole(user) === 'faculty';
 
-  // Origin / Destination states
-  const [origin, setOrigin] = useState('hostel-d');
-  const [destination, setDestination] = useState('tech-park');
+  // Direction: 'vit_to_city' (VIT -> Tambaram/etc) or 'city_to_vit' (Tambaram/etc -> VIT)
+  const [direction, setDirection] = useState<'vit_to_city' | 'city_to_vit'>('vit_to_city');
+  const [selectedRoute, setSelectedRoute] = useState<string>('tambaram');
   const [selectedSlot, setSelectedSlot] = useState('next');
   
   // Filtering & Booking Options
@@ -119,9 +235,13 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const handleSwap = () => {
-    setOrigin(destination);
-    setDestination(origin);
+    setDirection((prev) => (prev === 'vit_to_city' ? 'city_to_vit' : 'vit_to_city'));
   };
+
+  const currentDestinationObj = DESTINATIONS.find((d) => d.id === selectedRoute) || DESTINATIONS[0];
+
+  const originName = direction === 'vit_to_city' ? VIT_CAMPUS.name : currentDestinationObj.name;
+  const destinationName = direction === 'vit_to_city' ? currentDestinationObj.name : VIT_CAMPUS.name;
 
   const handleSelectRoute = (routeItem: TransitRoute) => {
     if (localStorage.getItem('activeTicket')) {
@@ -130,10 +250,16 @@ const Dashboard: React.FC = () => {
       return;
     }
     const sessionId = Math.random().toString(36).substring(2, 15);
-    navigate(`/booking/${sessionId}?route=${origin}&dest=${destination}&code=${routeItem.shuttleCode}&type=${routeItem.category}&groupSize=${groupSize}`);
+    navigate(`/booking/${sessionId}?route=${originName}&dest=${destinationName}&code=${routeItem.shuttleCode}&type=${routeItem.category}&groupSize=${groupSize}`);
   };
 
-  const filteredRoutes = MOCK_ROUTES.filter(r => {
+  const shuttles = (ALL_CORRIDOR_SHUTTLES[selectedRoute] || []).map((sh) => ({
+    ...sh,
+    originLandmark: originName,
+    destinationLandmark: destinationName,
+  }));
+
+  const filteredRoutes = shuttles.filter((r) => {
     if (categoryFilter === 'ALL') return true;
     return r.category === categoryFilter;
   });
@@ -141,21 +267,158 @@ const Dashboard: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       
-      {/* 1. Origin / Destination Search Hero */}
-      <OriginDestinationHero
-        origin={origin}
-        destination={destination}
-        landmarks={CAMPUS_LANDMARKS}
-        onOriginChange={setOrigin}
-        onDestinationChange={setDestination}
-        onSwap={handleSwap}
-        selectedSlot={selectedSlot}
-        onSelectSlot={setSelectedSlot}
-        onSearch={() => {
-          const el = document.getElementById('shuttle-results');
-          el?.scrollIntoView({ behavior: 'smooth' });
-        }}
-      />
+      {/* 1. Origin / Destination Search Hero Dedicated to the 4 Core Routes */}
+      <div className="w-full">
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-transit-border relative">
+          
+          {/* Header Strip */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6 pb-5 border-b border-slate-100">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-transit-redLight text-transit-red text-xs font-bold uppercase tracking-wider mb-2">
+                <span className="w-2 h-2 rounded-full bg-transit-red animate-ping" />
+                BusMate Official VIT Corridors
+              </div>
+              <h1 className="text-2xl md:text-3xl font-black text-transit-ink tracking-tight">
+                VIT Campus Shuttle Corridors
+              </h1>
+              <p className="text-sm text-transit-subtle mt-1">
+                Direct fleet transit connecting <strong>VIT Chennai</strong> with Tambaram, Alandur, Velachery & Sholinganallur.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 self-start md:self-auto bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
+              <span className="w-2.5 h-2.5 rounded-full bg-status-live animate-status-blink" />
+              <span className="text-xs font-bold font-mono text-transit-ink uppercase">4 Routes Active</span>
+            </div>
+          </div>
+
+          {/* Core Route Selector Tabs */}
+          <div className="mb-6">
+            <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-transit-subtle block mb-2">
+              Select City Route Corridor:
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              {DESTINATIONS.map((dest) => {
+                const isActive = selectedRoute === dest.id;
+                return (
+                  <button
+                    key={dest.id}
+                    type="button"
+                    onClick={() => setSelectedRoute(dest.id)}
+                    className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                      isActive
+                        ? 'border-transit-red bg-transit-redLight shadow-sm'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <span className={`block font-black text-sm md:text-base ${isActive ? 'text-transit-red' : 'text-transit-ink'}`}>
+                      {dest.name}
+                    </span>
+                    <span className="block text-[11px] text-transit-subtle truncate mt-0.5">
+                      ⇄ VIT Chennai
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Origin / Destination Wayfinding Box with Direction Swap */}
+          <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-center">
+            
+            {/* FROM */}
+            <div className="bg-transit-surface border-2 border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-transit-subtle block mb-1">
+                Boarding Point (Origin)
+              </span>
+              <div className="font-black text-transit-ink text-lg md:text-xl flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">{originName}</span>
+              </div>
+              <span className="text-xs text-slate-500 block mt-1">
+                {direction === 'vit_to_city' ? VIT_CAMPUS.landmark : currentDestinationObj.landmark}
+              </span>
+            </div>
+
+            {/* Overlapping Swap Direction Button */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 hidden md:flex">
+              <button
+                type="button"
+                onClick={handleSwap}
+                title="Swap Direction (VIT ⇄ City)"
+                className="w-11 h-11 rounded-full bg-white text-transit-ink border-2 border-slate-200 hover:border-transit-red hover:text-transit-red shadow-md flex items-center justify-center transition-all transform hover:rotate-180 active:scale-95"
+              >
+                ⇄
+              </button>
+            </div>
+
+            {/* Mobile swap button fallback */}
+            <div className="flex md:hidden justify-center -my-2 z-10">
+              <button
+                type="button"
+                onClick={handleSwap}
+                className="w-9 h-9 rounded-full bg-white text-transit-ink border border-slate-300 shadow-sm flex items-center justify-center active:scale-90 text-sm font-bold"
+              >
+                ⇅
+              </button>
+            </div>
+
+            {/* TO */}
+            <div className="bg-transit-surface border-2 border-slate-200 rounded-2xl p-4">
+              <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-transit-subtle block mb-1">
+                Dropoff Point (Destination)
+              </span>
+              <div className="font-black text-transit-ink text-lg md:text-xl flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-transit-red shrink-0" />
+                <span className="truncate">{destinationName}</span>
+              </div>
+              <span className="text-xs text-slate-500 block mt-1">
+                {direction === 'vit_to_city' ? currentDestinationObj.landmark : VIT_CAMPUS.landmark}
+              </span>
+            </div>
+          </div>
+
+          {/* Quick slot chips and filter */}
+          <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-transit-subtle block mb-2">
+                Quick Slot Filter:
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { id: 'next', label: 'Next Available' },
+                  { id: 'morning', label: 'Morning Peak (08:00 - 09:30 AM)' },
+                  { id: 'evening', label: 'Evening Return (05:00 - 06:30 PM)' },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSelectedSlot(s.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                      selectedSlot === s.id
+                        ? 'bg-transit-ink text-white border-transit-ink shadow-sm'
+                        : 'bg-white text-transit-subtle border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById('shuttle-results')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="w-full md:w-auto px-8 py-3.5 rounded-xl bg-transit-red hover:bg-transit-redHover text-white font-black text-sm tracking-wide uppercase shadow-lg shadow-transit-red/25 transition-all"
+            >
+              View Shuttles ({filteredRoutes.length})
+            </button>
+          </div>
+
+        </div>
+      </div>
 
       {/* 2. Route Timetable & Fleet Occupancy List */}
       <div id="shuttle-results" className="space-y-4">
@@ -167,14 +430,14 @@ const Dashboard: React.FC = () => {
               {filteredRoutes.length}
             </span>
             <span className="text-sm font-bold text-transit-subtle">
-              Available Shuttles for Selected Corridor
+              Shuttles for <span className="text-transit-ink font-black capitalize">{originName} ⇄ {destinationName}</span>
             </span>
           </div>
 
           {/* Category Filter Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <span className="text-xs font-mono text-transit-subtle font-bold mr-1 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5" /> Filter:
+              <Filter className="w-3.5 h-3.5" /> Fleet:
             </span>
             {(['ALL', 'Electric Express', 'AC', 'Non-AC'] as const).map((cat) => (
               <button
@@ -216,14 +479,14 @@ const Dashboard: React.FC = () => {
                 <Users className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-transit-ink">Group Transit Pass</h3>
-                <p className="text-xs text-transit-subtle">Reserve adjacent seats in the 2x2 layout together.</p>
+                <h3 className="text-xl font-black text-transit-ink">Group Travel Reservation</h3>
+                <p className="text-xs text-transit-subtle">Book contiguous seats together on the {currentDestinationObj.name} route.</p>
               </div>
             </div>
             
             <div className="mb-6">
               <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-transit-subtle block mb-2">
-                Passenger Party Size (Seats to lock)
+                Passenger Party Size
               </label>
               <select 
                 value={groupSize} 
@@ -269,9 +532,9 @@ const Dashboard: React.FC = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-transit-red text-xs font-bold uppercase mb-3">
                 Faculty Privilege
               </div>
-              <h3 className="text-2xl font-black text-white mb-2">Priority Boarding Access</h3>
+              <h3 className="text-2xl font-black text-white mb-2">Priority Seating Access</h3>
               <p className="text-sm text-slate-300">
-                Faculty members receive reserved front-row seating across all AC and Electric Express shuttles without pre-booking queues.
+                Faculty members receive priority front-row seating across all 4 VIT corridors (Tambaram, Alandur, Velachery, Sholinganallur).
               </p>
             </div>
             <div className="mt-6 flex items-center gap-2 text-xs font-mono text-emerald-400">
@@ -285,35 +548,39 @@ const Dashboard: React.FC = () => {
         <div className="bg-white border border-transit-border p-6 md:p-8 rounded-3xl shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 text-transit-red text-xs font-mono font-bold uppercase mb-2">
-              <Sparkles className="w-4 h-4" /> Transit Security Guidelines
+              <Sparkles className="w-4 h-4" /> BusMate 4-Corridor Network
             </div>
             <h3 className="text-xl font-black text-transit-ink mb-3">
-              M-Ticket Verification Protocol
+              Official Campus Routes
             </h3>
-            <ul className="space-y-3 text-xs text-transit-subtle">
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-transit-red mt-1.5 shrink-0" />
-                <span>Show your dynamic rotating QR code at the conductor scanner terminal upon boarding.</span>
+            <ul className="space-y-2.5 text-xs text-transit-subtle">
+              <li className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="font-bold text-transit-ink">1. Tambaram ⇄ VIT</span>
+                <span className="text-[11px] font-mono text-status-live font-bold">Live GPS</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-transit-red mt-1.5 shrink-0" />
-                <span>Screenshots are strictly invalid due to real-time HMAC timestamp encryption.</span>
+              <li className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="font-bold text-transit-ink">2. Alandur ⇄ VIT</span>
+                <span className="text-[11px] font-mono text-status-live font-bold">Live GPS</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-transit-red mt-1.5 shrink-0" />
-                <span>Seats are locked for 10 minutes during reservation to prevent booking collisions.</span>
+              <li className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="font-bold text-transit-ink">3. Velachery ⇄ VIT</span>
+                <span className="text-[11px] font-mono text-status-live font-bold">Live GPS</span>
+              </li>
+              <li className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="font-bold text-transit-ink">4. Sholinganallur ⇄ VIT</span>
+                <span className="text-[11px] font-mono text-status-live font-bold">Live GPS</span>
               </li>
             </ul>
           </div>
 
-          <div className="mt-6 p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-            <span className="text-xs font-bold text-transit-ink">Need assistance?</span>
+          <div className="mt-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+            <span className="text-xs font-bold text-transit-ink">View live tracking map</span>
             <button
               type="button"
-              onClick={() => navigate('/support')}
+              onClick={() => navigate('/routes')}
               className="text-xs font-bold text-transit-red hover:underline"
             >
-              Contact Transit Desk →
+              All Routes Status →
             </button>
           </div>
         </div>

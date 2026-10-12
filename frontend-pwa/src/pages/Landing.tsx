@@ -52,7 +52,7 @@ const Landing: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh]">
       <SignedOut>
-        <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl">
+        <div className={`w-full ${lang === 'ta' ? 'max-w-lg' : 'max-w-md'} bg-white p-8 rounded-3xl shadow-2xl transition-all duration-300`}>
           <div className="flex justify-between items-start mb-6">
             <div className="text-left">
               <h2 className="text-3xl font-black text-obsidian-900 tracking-tight">
@@ -190,8 +190,8 @@ const Landing: React.FC = () => {
               </>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <div className={mode === 'login' ? 'w-full' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}>
+              <div className="w-full">
                 <label className="text-xs font-bold text-slate-500 uppercase">
                   {mode === 'login' 
                     ? (lang === 'ta' ? 'மின்னஞ்சல் அல்லது தொலைபேசி' : 'Email or Phone') 
@@ -203,7 +203,7 @@ const Landing: React.FC = () => {
                   placeholder={mode === 'login' 
                     ? (lang === 'ta' ? 'மின்னஞ்சல் அல்லது தொலைபேசி' : 'Email or Phone') 
                     : (lang === 'ta' ? 'மின்னஞ்சல்@example.com' : 'email@example.com')} 
-                  className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" 
+                  className="w-full border-2 border-slate-200 rounded-xl px-4 py-2.5 font-bold focus:border-busmate-500 outline-none text-sm md:text-base" 
                   value={formData.email} 
                   onChange={e => setFormData({...formData, email: e.target.value})} 
                 />

@@ -6,6 +6,7 @@ import { getBookings, Booking } from '../data/mockBookings';
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'bookings' | 'routes'>('bookings');
   const [liveBookings, setLiveBookings] = useState<Booking[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const { simulateRole } = useAuth();
   const navigate = useNavigate();
 
@@ -105,55 +106,98 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="bg-white p-8 rounded-b-3xl rounded-tr-3xl border border-slate-200 shadow-sm min-h-[500px]">
-        {activeTab === 'bookings' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-obsidian-900">Live Booking Ledger</h3>
-              <input type="text" placeholder="Search Ticket ID or Student Name..." className="border border-slate-200 rounded-lg px-4 py-2 text-sm w-64 focus:outline-none focus:border-purple-500" />
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                    <th className="p-4 font-bold rounded-tl-xl">Ticket ID</th>
-                    <th className="p-4 font-bold">Passenger (s)</th>
-                    <th className="p-4 font-bold">Seats</th>
-                    <th className="p-4 font-bold">Route</th>
-                    <th className="p-4 font-bold">Bus Type</th>
-                    <th className="p-4 font-bold rounded-tr-xl">Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {liveBookings.map(b => (
-                    <tr key={b.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-4 font-mono font-bold text-purple-600">{b.id}</td>
-                      <td className="p-4">
-                        <span className="font-bold text-slate-800 block">{b.name}</span>
-                        {b.subMembers.length > 0 && (
-                          <span className="text-xs text-slate-500 font-medium mt-1 block">
-                            + {b.subMembers.join(', ')}
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-4">
-                        <span className="font-bold text-obsidian-900 bg-amber-100 px-2 py-1 rounded text-xs">
-                          {b.noOfSeats} {b.noOfSeats > 1 ? 'Seats' : 'Seat'}
-                        </span>
-                        <div className="text-xs text-slate-500 mt-1 font-mono">
-                          {b.seats.join(', ')}
-                        </div>
-                      </td>
-                      <td className="p-4 font-medium text-slate-600">{b.route}</td>
-                      <td className="p-4"><span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">{b.bus}</span></td>
-                      <td className="p-4 text-sm text-slate-500">{b.date}</td>
+        {activeTab === 'bookings' && (() => {
+          const query = searchQuery.trim().toLowerCase();
+          const filteredBookings = liveBookings.filter(b => {
+            if (!query) return true;
+            const matchesId = b.id?.toLowerCase().includes(query);
+            const matchesName = b.name?.toLowerCase().includes(query);
+            const matchesRoute = b.route?.toLowerCase().includes(query);
+            const matchesBus = b.bus?.toLowerCase().includes(query);
+            const matchesFriends = b.subMembers?.some(m => m.toLowerCase().includes(query));
+            return matchesId || matchesName || matchesRoute || matchesBus || matchesFriends;
+          });
+
+          return (
+            <div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-obsidian-900">Live Booking Ledger</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Showing {filteredBookings.length} of {liveBookings.length} total bookings
+                  </p>
+                </div>
+                <div className="relative w-full sm:w-80">
+                  <input 
+                    type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Ticket, Name, or Friends..." 
+                    className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-purple-600 transition" 
+                  />
+                  {searchQuery && (
+                    <button 
+                      type="button" 
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                      <th className="p-4 font-bold rounded-tl-xl">Ticket ID</th>
+                      <th className="p-4 font-bold">Passenger (s)</th>
+                      <th className="p-4 font-bold">Seats</th>
+                      <th className="p-4 font-bold">Route</th>
+                      <th className="p-4 font-bold">Bus Type</th>
+                      <th className="p-4 font-bold rounded-tr-xl">Timestamp</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredBookings.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="p-8 text-center text-slate-400 font-medium text-sm">
+                          No matching bookings found for "{searchQuery}".
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredBookings.map(b => (
+                        <tr key={b.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="p-4 font-mono font-bold text-purple-600">{b.id}</td>
+                          <td className="p-4">
+                            <span className="font-bold text-slate-800 block">{b.name}</span>
+                            {b.subMembers.length > 0 && (
+                              <span className="text-xs text-slate-500 font-medium mt-1 block">
+                                <span className="font-semibold text-purple-700">Friends:</span> {b.subMembers.join(', ')}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span className="font-bold text-obsidian-900 bg-amber-100 px-2 py-1 rounded text-xs">
+                              {b.noOfSeats} {b.noOfSeats > 1 ? 'Seats' : 'Seat'}
+                            </span>
+                            <div className="text-xs text-slate-500 mt-1 font-mono">
+                              {b.seats.join(', ')}
+                            </div>
+                          </td>
+                          <td className="p-4 font-medium text-slate-600">{b.route}</td>
+                          <td className="p-4"><span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">{b.bus}</span></td>
+                          <td className="p-4 text-sm text-slate-500">{b.date}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {activeTab === 'routes' && (
           <div>

@@ -195,18 +195,43 @@ const Dashboard: React.FC = () => {
           )}
         </div>
         
-        {/* Ready to go / Live Booking Room Card */}
-        <div className="bg-white border-2 border-slate-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition flex flex-col justify-center items-center text-center">
-          <div className="w-20 h-20 rounded-3xl bg-transit-redLight text-transit-red flex items-center justify-center mb-6">
-            <Bus className="w-10 h-10" />
+        {/* Ready to go & Shuttle Departure Policy Card */}
+        <div className="bg-white border-2 border-slate-100 p-8 rounded-3xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-transit-redLight text-transit-red flex items-center justify-center shrink-0">
+                <Bus className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-transit-ink">Departure Window Policy</h3>
+                <span className="text-xs font-mono font-bold text-transit-red bg-red-50 px-2 py-0.5 rounded">
+                  1:30 PM – 1:45 PM Window
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2.5 text-xs text-slate-600 mb-6">
+              <div className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-transit-red mt-1.5 shrink-0" />
+                <p><strong>Earliest Departure:</strong> Shuttles will <em>never</em> depart before <strong>1:30 PM</strong> under any condition.</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                <p><strong>Capacity Departure:</strong> Once full (all 50 seats booked), the bus leaves immediately (post 1:30 PM).</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                <p><strong>Latest Departure:</strong> If partially empty, the bus will strictly depart at <strong>1:45 PM</strong>.</p>
+              </div>
+            </div>
           </div>
-          <h3 className="text-2xl font-black text-transit-ink mb-2">Ready to Ride?</h3>
-          <p className="text-slate-500 mb-6 max-w-sm text-sm">
-            Hit <strong className="text-transit-ink">'SEARCH BUSES'</strong> above to enter the live seat booking deck. Seats are locked for 10 minutes upon entering.
-          </p>
-          <div className="flex items-center gap-2 text-xs font-mono text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-200">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Equal Fair-Access Booking System</span>
+
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <span className="text-xs text-slate-400 font-mono">Real-time gate dispatch</span>
+            <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 font-bold">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Equal Access Verified</span>
+            </div>
           </div>
         </div>
 

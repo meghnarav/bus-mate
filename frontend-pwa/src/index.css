@@ -1,3 +1,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  /* Dynamic Verification Blinker */
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.92); }
+  }
+
+  .animate-status-blink {
+    animation: statusPulse 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Scannable ticket cutout notches */
+  .ticket-notch-left {
+    position: relative;
+  }
+  .ticket-notch-left::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background-color: #F8FAFC;
+    border-radius: 9999px;
+    border-right: 1px solid #E2E8F0;
+    z-index: 10;
+  }
+
+  .ticket-notch-right {
+    position: relative;
+  }
+  .ticket-notch-right::after {
+    content: '';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background-color: #F8FAFC;
+    border-radius: 9999px;
+    border-left: 1px solid #E2E8F0;
+    z-index: 10;
+  }
+}

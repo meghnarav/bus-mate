@@ -22,18 +22,21 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans">
-      <nav className="bg-gradient-to-r from-obsidian-900 via-obsidian-800 to-indigo-900 text-white shadow-lg border-b-[3px] border-busmate-400 relative z-50">
+    <div className="min-h-screen bg-transit-surface font-sans text-transit-ink">
+      <nav className="bg-transit-ink text-white shadow-md border-b-2 border-transit-red relative z-50">
         <div className="p-4 flex justify-between items-center max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-busmate-400 rounded-lg flex items-center justify-center text-obsidian-900 font-black">
-                B
+            <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+              <div className="w-8 h-8 bg-transit-red rounded-lg flex items-center justify-center text-white font-black text-sm shadow-sm">
+                CT
               </div>
-              <h1 className="text-2xl font-black tracking-tighter text-white">
-                Bus<span className="text-busmate-400">Mate</span>
-              </h1>
-              <span className="text-[10px] uppercase bg-accent-500 text-white px-2 py-0.5 rounded-full font-bold ml-1">VIT</span>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-black tracking-tight text-white leading-tight">
+                  Campus<span className="text-transit-red">Transit</span>
+                </h1>
+                <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400 -mt-0.5">Shuttle Tech</span>
+              </div>
+              <span className="text-[10px] uppercase bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold ml-1">LIVE</span>
             </Link>
             
             <SignedIn>

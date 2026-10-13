@@ -71,10 +71,24 @@ const translations = {
 };
 
 const ROUTES_DB: Record<string, string[]> = {
-  'Tambaram - VIT': ['Tambaram', 'Perungalathur', 'Vandalur', 'VIT'],
-  'Alandur - VIT': ['Alandur', 'Guindy', 'Pallavaram', 'Chromepet', 'VIT'],
-  'Velachery - VIT': ['Velachery', 'Pallikaranai', 'Medavakkam', 'VIT'],
-  'Sholinganallur - VIT': ['Sholinganallur', 'Navalur', 'Kelambakkam', 'VIT'],
+  'VIT - Tambaram': ['VIT', 'Vandalur', 'Perungalathur', 'Tambaram'],
+  'VIT - Alandur': ['VIT', 'Chromepet', 'Pallavaram', 'Guindy', 'Alandur'],
+  'VIT - Velachery': ['VIT', 'Medavakkam', 'Pallikaranai', 'Velachery'],
+  'VIT - Sholinganallur': ['VIT', 'Kelambakkam', 'Navalur', 'Sholinganallur'],
+  // Legacy aliases
+  'Tambaram - VIT': ['VIT', 'Vandalur', 'Perungalathur', 'Tambaram'],
+  'Alandur - VIT': ['VIT', 'Chromepet', 'Pallavaram', 'Guindy', 'Alandur'],
+  'Velachery - VIT': ['VIT', 'Medavakkam', 'Pallikaranai', 'Velachery'],
+  'Sholinganallur - VIT': ['VIT', 'Kelambakkam', 'Navalur', 'Sholinganallur'],
+};
+
+// Flexible route matching (handles both "VIT - Tambaram" and "Tambaram - VIT")
+const isSameCorridor = (r1: string, r2: string) => {
+  if (r1 === r2) return true;
+  const keywords = ['tambaram', 'alandur', 'velachery', 'sholinganallur'];
+  const k1 = keywords.find(k => r1.toLowerCase().includes(k));
+  const k2 = keywords.find(k => r2.toLowerCase().includes(k));
+  return Boolean(k1 && k2 && k1 === k2);
 };
 
 // Load seats from live database
@@ -83,10 +97,11 @@ const loadSeats = (route: string, busType: string) => {
   const bookings = getBookings();
   
   bookings.forEach(b => {
-    // Only map seats if it matches the driver's route and bus type
-    if (b.route === route && b.bus === busType) {
+    // Map seats if it matches the driver's route corridor and bus type
+    if (isSameCorridor(b.route, route) && b.bus === busType) {
       b.seats.forEach(seatStr => {
-        const seatNum = parseInt(seatStr, 10);
+        const clean = seatStr.replace(/[^0-9]/g, '');
+        const seatNum = parseInt(clean, 10);
         if (!isNaN(seatNum) && seatNum > 0 && seatNum <= 50) {
           seats[seatNum - 1] = true;
         }
@@ -99,7 +114,7 @@ const loadSeats = (route: string, busType: string) => {
 const DriverScanner: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const driverRoute = user?.route || 'Tambaram - VIT';
+  const driverRoute = user?.route || 'VIT - Tambaram';
   const busType = user?.subscriptionType || 'AC';
   
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
@@ -110,17 +125,16 @@ const DriverScanner: React.FC = () => {
   const [boardedCount, setBoardedCount] = useState(0);
 
   const t = translations[lang];
-  const stops = ROUTES_DB[driverRoute] || ROUTES_DB['Tambaram - VIT'];
+  const stops = ROUTES_DB[driverRoute] || ROUTES_DB['VIT - Tambaram'] || ROUTES_DB['Tambaram - VIT'];
   
   // Stable deterministic bus number based on route and busType
   const busNumber = React.useMemo(() => {
-    const routeCodes: Record<string, string> = {
-      'Tambaram - VIT': 'TBM-101',
-      'Alandur - VIT': 'ALD-202',
-      'Velachery - VIT': 'VEL-303',
-      'Sholinganallur - VIT': 'SHL-404',
-    };
-    const code = routeCodes[driverRoute] || 'VIT-505';
+    const routeLower = driverRoute.toLowerCase();
+    let code = 'VIT-101';
+    if (routeLower.includes('tambaram')) code = 'TBM-101';
+    else if (routeLower.includes('alandur')) code = 'ALD-202';
+    else if (routeLower.includes('velachery')) code = 'VEL-303';
+    else if (routeLower.includes('sholinganallur')) code = 'SHL-404';
     return `TN-22-BY-${code}-${busType === 'AC' ? 'AC' : 'NA'}`;
   }, [driverRoute, busType]);
 

@@ -2,10 +2,10 @@ import React from 'react';
 
 const RoutesPage: React.FC = () => {
   const allRoutes = [
-    { id: 'tambaram', name: 'Tambaram - VIT', status: 'On Time', nextBus: '14:30' },
-    { id: 'velachery', name: 'Velachery - VIT', status: 'Delayed', nextBus: '15:00' },
-    { id: 'sholinganallur', name: 'Sholinganallur - VIT', status: 'On Time', nextBus: '14:45' },
-    { id: 'alandur', name: 'Alandur - VIT', status: 'Full', nextBus: '16:00' },
+    { id: 'tambaram', name: 'VIT - Tambaram', status: 'On Time', nextBus: '13:30 - 13:45' },
+    { id: 'velachery', name: 'VIT - Velachery', status: 'On Time', nextBus: '13:30 - 13:45' },
+    { id: 'sholinganallur', name: 'VIT - Sholinganallur', status: 'On Time', nextBus: '13:30 - 13:45' },
+    { id: 'alandur', name: 'VIT - Alandur', status: 'Full', nextBus: '13:30 - 13:45' },
   ];
 
   return (

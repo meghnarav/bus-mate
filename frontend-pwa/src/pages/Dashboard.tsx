@@ -15,11 +15,9 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Exactly what it used to be:
-  // Boarding From: tambaram / velachery / sholinganallur / alandur
-  // Destination: VIT Chennai
-  // Comfort: AC Bus / Non-AC Bus
-  const [route, setRoute] = useState('tambaram');
+  // Source is always VIT Chennai
+  // Destination: tambaram / velachery / sholinganallur / alandur
+  const [destination, setDestination] = useState('tambaram');
   const [busType, setBusType] = useState('AC');
   const [groupSize, setGroupSize] = useState(1);
   const [savedGroups, setSavedGroups] = useState<SavedGroup[]>([]);
@@ -38,7 +36,7 @@ const Dashboard: React.FC = () => {
     }
     // Generate a mock session ID
     const sessionId = Math.random().toString(36).substring(2, 15);
-    navigate(`/booking/${sessionId}?route=${route}&type=${busType}&groupSize=${groupSize}`);
+    navigate(`/booking/${sessionId}?dest=${destination}&route=${destination}&type=${busType}&groupSize=${groupSize}`);
   };
 
   return (
@@ -66,18 +64,35 @@ const Dashboard: React.FC = () => {
         {/* Premium High-Contrast Search Bar in New Transit UI */}
         <div className="relative z-10 bg-white rounded-3xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col lg:flex-row items-center gap-3">
           
-          {/* BOARDING FROM */}
+          {/* BOARDING FROM (ALWAYS VIT CHENNAI AS SOURCE) */}
+          <div className="flex-1 w-full flex items-center px-6 py-4 bg-slate-50/70 rounded-2xl border border-slate-100 cursor-not-allowed">
+            <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center mr-4 shadow-sm">
+              <Bus className="w-6 h-6 text-transit-red" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-mono font-bold uppercase tracking-widest mb-1">
+                Boarding Point (Source)
+              </p>
+              <p className="font-black text-transit-ink text-xl md:text-2xl">
+                VIT Chennai
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden lg:block w-px h-16 bg-slate-200"></div>
+
+          {/* DESTINATION (THE FOUR DESTINATIONS) */}
           <div className="flex-1 w-full flex items-center px-6 py-4 hover:bg-slate-50 rounded-2xl transition cursor-pointer border border-transparent hover:border-slate-100 group">
             <div className="w-12 h-12 bg-red-50 text-transit-red rounded-2xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
               <MapPin className="w-6 h-6 text-transit-red" />
             </div>
             <div className="flex-1">
               <p className="text-xs text-slate-400 font-mono font-bold uppercase tracking-widest mb-1">
-                Boarding From
+                Destination (Dropping Point)
               </p>
               <select 
-                value={route}
-                onChange={(e) => setRoute(e.target.value)}
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
                 className="w-full bg-transparent font-black text-transit-ink text-xl md:text-2xl outline-none appearance-none cursor-pointer"
               >
                 <option value="tambaram">Tambaram</option>
@@ -85,23 +100,6 @@ const Dashboard: React.FC = () => {
                 <option value="sholinganallur">Sholinganallur</option>
                 <option value="alandur">Alandur</option>
               </select>
-            </div>
-          </div>
-
-          <div className="hidden lg:block w-px h-16 bg-slate-200"></div>
-
-          {/* DESTINATION */}
-          <div className="flex-1 w-full flex items-center px-6 py-4 bg-slate-50/60 rounded-2xl cursor-not-allowed">
-            <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center mr-4">
-              <Bus className="w-6 h-6 text-transit-red" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 font-mono font-bold uppercase tracking-widest mb-1">
-                Destination
-              </p>
-              <p className="font-black text-transit-ink text-xl md:text-2xl">
-                VIT Chennai
-              </p>
             </div>
           </div>
 

@@ -22,7 +22,7 @@ const Landing: React.FC = () => {
     role: 'student' as 'student' | 'driver' | 'faculty' | 'admin',
     registrationNumber: '',
     facultyId: '',
-    route: 'Tambaram',
+    route: 'VIT - Tambaram',
     subscriptionType: 'AC Transport'
   });
 
@@ -172,10 +172,10 @@ const Landing: React.FC = () => {
                     <div>
                       <label className="text-xs font-bold text-slate-500 uppercase">{lang === 'ta' ? 'ஒதுக்கப்பட்ட வழித்தடம்' : 'Assigned Route'}</label>
                       <select required className="w-full border-2 border-slate-200 rounded-xl px-4 py-2 font-bold focus:border-busmate-500 outline-none" value={formData.route} onChange={e => setFormData({...formData, route: e.target.value})}>
-                        <option value="Tambaram - VIT">{lang === 'ta' ? 'தாம்பரம் - விஐடி' : 'Tambaram - VIT'}</option>
-                        <option value="Alandur - VIT">{lang === 'ta' ? 'ஆலந்தூர் - விஐடி' : 'Alandur - VIT'}</option>
-                        <option value="Velachery - VIT">{lang === 'ta' ? 'வேளச்சேரி - விஐடி' : 'Velachery - VIT'}</option>
-                        <option value="Sholinganallur - VIT">{lang === 'ta' ? 'சோழிங்கநல்லூர் - விஐடி' : 'Sholinganallur - VIT'}</option>
+                        <option value="VIT - Tambaram">{lang === 'ta' ? 'விஐடி - தாம்பரம்' : 'VIT - Tambaram'}</option>
+                        <option value="VIT - Alandur">{lang === 'ta' ? 'விஐடி - ஆலந்தூர்' : 'VIT - Alandur'}</option>
+                        <option value="VIT - Velachery">{lang === 'ta' ? 'விஐடி - வேளச்சேரி' : 'VIT - Velachery'}</option>
+                        <option value="VIT - Sholinganallur">{lang === 'ta' ? 'விஐடி - சோழிங்கநல்லூர்' : 'VIT - Sholinganallur'}</option>
                       </select>
                     </div>
                     <div>

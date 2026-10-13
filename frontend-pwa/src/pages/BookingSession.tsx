@@ -11,20 +11,20 @@ const BookingSession: React.FC = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   
-  const rawRoute = query.get('route') || 'tambaram';
+  const rawDest = query.get('dest') || (query.get('route') !== 'vit' ? query.get('route') : null) || 'tambaram';
   const busType = query.get('type') || 'AC';
   const groupSize = Number(query.get('groupSize')) || 1;
 
-  // Format capitalized origin and dest
-  const origin = rawRoute.charAt(0).toUpperCase() + rawRoute.slice(1);
-  const dest = 'VIT Chennai';
+  // VIT Chennai is always the source; the 4 are the destinations
+  const origin = 'VIT Chennai';
+  const dest = rawDest.charAt(0).toUpperCase() + rawDest.slice(1);
   const routeCodeMap: Record<string, string> = {
     tambaram: 'TBM-101',
     alandur: 'ALD-202',
     velachery: 'VEL-303',
     sholinganallur: 'SHL-404',
   };
-  const shuttleCode = query.get('code') || routeCodeMap[rawRoute.toLowerCase()] || 'VIT-505';
+  const shuttleCode = query.get('code') || routeCodeMap[rawDest.toLowerCase()] || 'VIT-101';
 
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes lock
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
@@ -79,8 +79,8 @@ const BookingSession: React.FC = () => {
       shuttleName: 'BusMate Campus Shuttle',
       origin,
       destination: dest,
-      departureTime: '08:15 AM',
-      seats: selectedSeats.map((s) => `S-${s}`),
+      departureTime: '01:30 PM',
+      seats: selectedSeats.map(String),
       fare: 0,
       secretSeed: `seed-${sessionId}`,
     };
@@ -91,10 +91,12 @@ const BookingSession: React.FC = () => {
       JSON.stringify({
         sessionId,
         pnr: pnrCode,
+        origin,
+        destination: dest,
         route: `${origin} → ${dest}`,
         busType,
         shuttleCode,
-        seats: selectedSeats.map((s) => `S-${s}`),
+        seats: selectedSeats.map(String),
         timestamp: Date.now(),
       })
     );
@@ -107,7 +109,7 @@ const BookingSession: React.FC = () => {
       bus: busType,
       date: new Date().toLocaleString('en-IN', { hour12: false }).substring(0, 16),
       noOfSeats: selectedSeats.length,
-      seats: selectedSeats.map((s) => String(s)),
+      seats: selectedSeats.map(String),
       subMembers: groupSize > 1 ? Array.from({ length: groupSize - 1 }, (_, i) => `Member ${i + 1}`) : [],
     };
     const live = getBookings();
@@ -185,7 +187,7 @@ const BookingSession: React.FC = () => {
         /* Seat Matrix View */
         <InteractiveSeatMatrix
           shuttleCode={shuttleCode}
-          totalSeats={40}
+          totalSeats={50}
           bookedSeats={bookedSeats}
           femalePrioritySeats={femalePrioritySeats}
           selectedSeats={selectedSeats}

@@ -28,10 +28,10 @@ const AdminDashboard: React.FC = () => {
   };
 
   const [routes, setRoutes] = useState([
-    { id: 'tambaram', name: 'Tambaram - VIT', stops: ['Tambaram', 'Perungalathur', 'Vandalur', 'VIT'] },
-    { id: 'alandur', name: 'Alandur - VIT', stops: ['Alandur', 'Guindy', 'Pallavaram', 'Chromepet', 'VIT'] },
-    { id: 'velachery', name: 'Velachery - VIT', stops: ['Velachery', 'Pallikaranai', 'Medavakkam', 'VIT'] },
-    { id: 'sholinganallur', name: 'Sholinganallur - VIT', stops: ['Sholinganallur', 'Navalur', 'Kelambakkam', 'VIT'] },
+    { id: 'tambaram', name: 'VIT - Tambaram', stops: ['VIT', 'Vandalur', 'Perungalathur', 'Tambaram'] },
+    { id: 'alandur', name: 'VIT - Alandur', stops: ['VIT', 'Chromepet', 'Pallavaram', 'Guindy', 'Alandur'] },
+    { id: 'velachery', name: 'VIT - Velachery', stops: ['VIT', 'Medavakkam', 'Pallikaranai', 'Velachery'] },
+    { id: 'sholinganallur', name: 'VIT - Sholinganallur', stops: ['VIT', 'Kelambakkam', 'Navalur', 'Sholinganallur'] },
   ]);
 
   const handleEditStops = (routeId: string) => {
@@ -45,7 +45,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleAddRoute = () => {
-    const name = prompt('Enter Route Name (e.g., Guindy - VIT):');
+    const name = prompt('Enter Route Name (e.g., VIT - Guindy):');
     const stopsStr = prompt('Enter stops separated by commas:');
     if (name && stopsStr) {
       const id = name.split(' ')[0].toLowerCase();
